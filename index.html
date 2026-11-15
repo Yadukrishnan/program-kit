@@ -53,8 +53,8 @@ p{margin:0}
 .brand-name svg{color:var(--gold)}
 .chip{font-size:.75rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:var(--warn-soft);color:var(--warn);white-space:nowrap}
 .chip.live{background:var(--ok-soft);color:var(--ok)}
-.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
-.steps button{border:0;background:var(--sunk);border-radius:10px;min-height:44px;font-size:.84rem;font-weight:600;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:5px;padding:0 4px;min-width:0}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.steps button{border:0;background:var(--sunk);border-radius:10px;min-height:52px;font-size:.8rem;font-weight:600;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:4px 2px;min-width:0}
 .steps button .n{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:.78rem;background:var(--line);color:var(--ink)}
 .steps button[aria-current="step"]{background:var(--accent);color:var(--accent-ink)}
 .steps button[aria-current="step"] .n{background:var(--accent-ink);color:var(--accent)}
@@ -182,6 +182,19 @@ main{padding-block:20px 140px}
 .stage-h b{font-size:1.05rem}
 .stage-h span{font-size:.9rem;color:var(--muted)}
 .thumbs{display:grid;grid-template-columns:1fr .5625fr;gap:10px;align-items:start}
+/* poster carousel: English post, English story, Malayalam post, Malayalam story — swipe sideways */
+.car{--ch:min(280px,62vw);display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:0;padding-bottom:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.car::-webkit-scrollbar{display:none}
+.car .tw{flex:none;scroll-snap-align:start;height:var(--ch)}
+.car .tw.sq{width:var(--ch)}
+.car .tw.story{width:calc(var(--ch) * .5625)}
+.car .thumb{height:100%}
+.car .thumb canvas{width:100%;height:100%}
+.dots{display:flex;justify-content:center;gap:4px}
+.dots button{width:26px;height:26px;padding:0;border:0;background:transparent;display:grid;place-items:center}
+.dots button::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--line);transition:background-color .2s, transform .2s}
+.dots button[aria-current="true"]::before{background:var(--accent);transform:scale(1.25)}
+.keepopen{display:flex;gap:10px;align-items:flex-start;background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:12px 14px;font-size:.98rem;font-weight:600}
 .thumb{border:0;padding:0;background:var(--sunk);border-radius:10px;overflow:hidden;display:block;width:100%;position:relative}
 .thumb canvas{width:100%;height:auto;display:block}
 .tw{position:relative;min-width:0}
@@ -229,7 +242,8 @@ main{padding-block:20px 140px}
       <button data-act="go" data-step="1"><span class="n">1</span>Items</button>
       <button data-act="go" data-step="2"><span class="n">2</span>Details</button>
       <button data-act="go" data-step="3"><span class="n">3</span>Posters</button>
-      <button data-act="go" data-step="4"><span class="n">4</span>Review</button>
+      <button data-act="go" data-step="4"><span class="n">4</span>Script</button>
+      <button data-act="go" data-step="5"><span class="n">5</span>Review</button>
     </nav>
   </div>
 </header>
@@ -239,7 +253,7 @@ main{padding-block:20px 140px}
 
 <div class="viewer" id="viewer" hidden>
   <div class="wrap">
-    <div class="v-top"><b id="vTitle">Poster</b><button class="btn sm secondary" data-act="vclose">Done</button></div>
+    <div class="v-top"><b id="vTitle">Poster</b><button class="btn sm secondary" id="vClose" data-act="vclose">Done</button></div>
     <div class="v-stage" id="vStage">
       <img id="vImg" alt="Poster preview">
       <canvas id="vCanvas" hidden aria-label="Drag to move the photo"></canvas>
@@ -250,7 +264,7 @@ main{padding-block:20px 140px}
 </div>
 <div class="viewer" id="pviewer" hidden>
   <div class="wrap">
-    <div class="v-top"><b id="pTitle">Script page</b><button class="btn sm secondary" data-act="pclose">Done</button></div>
+    <div class="v-top"><b id="pTitle">Script page</b><button class="btn sm secondary" id="pClose" data-act="pclose">Done</button></div>
     <div class="v-stage"><img id="pImg" alt="Script page preview"></div>
     <div class="pnav"><button class="btn sm outline" id="pPrev" data-act="pprev">Previous page</button><button class="btn sm outline" id="pNext" data-act="pnext">Next page</button></div>
     <div id="pEdit" class="stack-sm"></div>
@@ -405,12 +419,9 @@ const state = {
   pLang:'en', pStyle:'minimal', photoId:null, adjust:{},
   edits:{}, editsSig:'', folder:null, music:null, clearArm:false
 };
-(function loadDraft(){
-  const d = store.get(DRAFT); if(!d) return;
-  ['step','tab','program','items','scriptLang','bioLen','pLang','pStyle','photoId','adjust','edits','editsSig','folder'].forEach(k=>{ if(d[k]!==undefined) state[k]=d[k]; });
-  state.program = Object.assign(blankProgram(), state.program||{});
-})();
-function save(){ const {music, clearArm, saving, ...rest} = state; store.set(DRAFT, rest); }
+/* every visit starts fresh: nothing from an earlier program is kept (an old saved draft is removed) */
+try{ localStorage.removeItem(DRAFT); }catch(e){}
+function save(){ /* state lives only while the page is open */ }
 
 const rep = id => (DATA && DATA.repertoire.find(r=>r.id===id)) || null;
 const tx = (key, lang) => { const t = DATA && DATA.text[key]; if(!t) return ''; return (lang==='ml' ? (t.ml||t.en) : (t.en||t.ml)) || ''; };
@@ -477,11 +488,13 @@ function render(){
   const chip=$('#modeChip'); chip.textContent = LIVE ? 'Connected' : 'Sample data'; chip.classList.toggle('live', LIVE);
   if(!DATA){ $('#main').innerHTML = loadingHTML(); $('#bar').hidden = true; return; }
   const m = $('#main');
-  state.step = clamp(+state.step||1, 1, 4);
+  state.step = clamp(+state.step||1, 1, 5);
+  $('#top .steps').hidden = locked();
   if(state.step===1) m.innerHTML = step1();
   else if(state.step===2) m.innerHTML = step2();
   else if(state.step===3) m.innerHTML = step3();
-  else m.innerHTML = step4();
+  else if(state.step===4) m.innerHTML = stepScript();
+  else m.innerHTML = stepReview();
   renderBar();
   if(state.step===1) applySearch();
   afterRender();
@@ -491,14 +504,17 @@ function loadingHTML(){
   if(loadError) return `<div class="stack"><div class="lead"><h1>Could not load her songs</h1><p class="muted">${esc(loadError)}</p></div><button class="btn block" data-act="retry">Try again</button></div>`;
   return `<div class="lead"><h1>Loading…</h1><p class="muted">Getting her songs and photos from Google Drive.</p></div>`;
 }
+/* while saving, and once saved, the Review page shows only the progress / the result */
+function locked(){ return state.step===5 && !!(state.saving || state.folder); }
 function renderBar(){
   const row=$('#barRow'), bar=$('#bar');
-  bar.hidden = false;
+  bar.hidden = locked();
   if(state.step===1){ const n=validItems().length;
     row.className='btn-row one'; row.innerHTML = `<button class="btn block" data-act="go" data-step="2" ${n?'':'disabled'}>Next: program details</button>`; }
   else if(state.step===2){ row.className='btn-row'; row.innerHTML = `<button class="btn secondary" data-act="go" data-step="1">Back</button><button class="btn" data-act="go" data-step="3">Next: posters</button>`; }
-  else if(state.step===3){ row.className='btn-row'; row.innerHTML = `<button class="btn secondary" data-act="go" data-step="2">Back</button><button class="btn" data-act="go" data-step="4">Review</button>`; }
-  else { row.className='btn-row save-row'; row.innerHTML = `<button class="btn secondary" data-act="go" data-step="3">Back</button><button class="btn" id="saveBtn" data-act="saveall" ${state.saving?'disabled':''}>${ICON.folder} ${state.saving?'Saving…':'Save all to Google Drive'}</button>`; }
+  else if(state.step===3){ row.className='btn-row'; row.innerHTML = `<button class="btn secondary" data-act="go" data-step="2">Back</button><button class="btn" data-act="go" data-step="4">Next: script</button>`; }
+  else if(state.step===4){ row.className='btn-row'; row.innerHTML = `<button class="btn secondary" data-act="go" data-step="3">Back</button><button class="btn" data-act="go" data-step="5">Review</button>`; }
+  else { row.className='btn-row save-row'; row.innerHTML = `<button class="btn secondary" data-act="go" data-step="4">Back</button><button class="btn" id="saveBtn" data-act="saveall" ${state.saving?'disabled':''}>${ICON.folder} ${state.saving?'Saving…':'Save all to Google Drive'}</button>`; }
 }
 
 /* ---------- step 1: items ---------- */
@@ -597,18 +613,54 @@ function step2(){
 /* ---------- step 3: posters ---------- */
 function step3(){
   return `<div class="stack">
-    <div class="lead"><h1>Posters</h1><p class="muted">Pick the language, style and photo. Tap a poster to see it large and move the photo.</p></div>
+    <div class="lead"><h1>Posters</h1><p class="muted">Pick the style and photo. Tap a poster to see it large and move the photo.</p></div>
     ${postersPanel()}
   </div>`;
 }
 
-/* ---------- step 4: review ---------- */
-function missingList(){ const P=state.program, m=[]; if(!validItems().length) m.push('items'); if(!P.date) m.push('date'); if(!pick('event','en')) m.push('event name'); if(!pick('venue','en')) m.push('venue'); return m; }
+/* ---------- step 4: announcement script ---------- */
 function pageLabel(s){ return s.kind==='intro' ? 'Introduction' : s.kind==='thanks' ? 'Thank you' : `Item ${s.idx+1}`; }
-function step4(){
+function pageGrid(act){
+  return `<div class="sgrid">${buildSections().map((s,i)=>`
+        <button class="sthumb" data-act="${act}" data-i="${i}" aria-label="Page ${i+1}: ${esc(pageLabel(s))}"><canvas data-page="${i}"></canvas><span class="cap">${i+1} · ${esc(pageLabel(s))}</span>${s.parts.some(p=>p.edited) ? '<span class="chg">changed</span>' : ''}</button>`).join('')}
+      </div>`;
+}
+function scriptButtons(){
+  return `<div class="btn-row">
+        <a class="btn wa sm" data-act="wa-script" href="#" target="_blank" rel="noopener">${ICON.wa} WhatsApp text</a>
+        <button class="btn secondary sm" data-act="pdf">${ICON.save} Download PDF</button>
+      </div>`;
+}
+function stepScript(){
   ensureEditsSig();
-  const P = state.program, files = fileNames(), total = files.reduce((s,f)=>s+f.dur,0), est = total + files.length*60 + 8*60;
-  const secs = buildSections(), missing = missingList();
+  return `<div class="stack">
+    <div class="lead"><h1>Announcement script</h1><p class="muted">Pick the language. Tap a page to read it large, choose short or long, and change the words.</p></div>
+    <div class="seg" role="group" aria-label="Script language">
+      <button data-act="slang" data-v="both" aria-pressed="${state.scriptLang==='both'}">Both</button>
+      <button data-act="slang" data-v="ml" aria-pressed="${state.scriptLang==='ml'}" class="ml">മലയാളം</button>
+      <button data-act="slang" data-v="en" aria-pressed="${state.scriptLang==='en'}">English</button>
+    </div>
+    ${pageGrid('page')}
+    ${scriptButtons()}
+  </div>`;
+}
+
+/* ---------- step 5: review ---------- */
+function missingList(){ const P=state.program, m=[]; if(!validItems().length) m.push('items'); if(!P.date) m.push('date'); if(!pick('event','en')) m.push('event name'); if(!pick('venue','en')) m.push('venue'); return m; }
+function stepReview(){
+  ensureEditsSig();
+  if(state.saving) return `<div class="stack">
+    <div class="lead"><h1>Saving to Google Drive</h1></div>
+    <div class="keepopen" role="alert">Please keep this page open and the phone unlocked until saving finishes. Closing it now stops the saving.</div>
+    <div id="saveSlot">${savingCard(state.saving)}</div>
+  </div>`;
+  if(state.folder) return `<div class="stack">
+    <div class="lead"><h1>All saved</h1></div>
+    ${savedCard(state.folder)}
+    <button class="btn block secondary" data-act="newprog">${ICON.plus} Start another program</button>
+  </div>`;
+  const P = state.program, files = fileNames(), total = files.reduce((s,f)=>s+f.dur,0);
+  const missing = missingList();
   return `<div class="stack">
     <div class="lead"><h1>Review</h1><p class="muted">Check the music, posters and script. When everything looks right, tap <b>Save all to Google Drive</b>.</p></div>
     <div class="summary">
@@ -616,7 +668,6 @@ function step4(){
       <div class="sm">${esc([fmtShortDate(P.date), fmtTime(P.time,'en')].filter(Boolean).join(' · '))}${pick('venue','en') ? ' · ' + esc(pick('venue','en')) : ''}</div>
     </div>
     ${missing.length ? `<div class="warn">Still missing: ${esc(missing.join(', '))}. You can still save, but these will be blank.</div>` : ''}
-    <div id="saveSlot">${state.saving ? savingCard(state.saving) : state.folder ? savedCard(state.folder) : ''}</div>
 
     <section class="card" aria-labelledby="h-music">
       <div class="card-h"><h2 id="h-music">Music</h2><button class="link" data-act="go" data-step="1">Change</button></div>
@@ -626,35 +677,17 @@ function step4(){
 
     <section class="card" aria-labelledby="h-posters">
       <div class="card-h"><h2 id="h-posters">Posters</h2><button class="link" data-act="go" data-step="3">Change</button></div>
-      <div class="seg" role="group" aria-label="Poster language">
-        <button data-act="plang" data-v="en" aria-pressed="${state.pLang==='en'}">English</button>
-        <button data-act="plang" data-v="ml" aria-pressed="${state.pLang==='ml'}" class="ml">മലയാളം</button>
-      </div>
-      ${STAGES.map(s=>`
-      <div class="stage">
-        <div class="stage-h"><b>${s.label}</b><span>${s.when}</span></div>
-        <div class="thumbs">
-          ${thumbHTML(s,'sq')}${thumbHTML(s,'story')}
-        </div>
-      </div>`).join('')}    </section>
+      ${STAGES.map(posterCarousel).join('')}
+    </section>
 
     <section class="card" aria-labelledby="h-script">
-      <div class="card-h"><h2 id="h-script">Announcement script</h2></div>
-      <div class="seg" role="group" aria-label="Script language">
-        <button data-act="slang" data-v="both" aria-pressed="${state.scriptLang==='both'}">Both</button>
-        <button data-act="slang" data-v="ml" aria-pressed="${state.scriptLang==='ml'}" class="ml">മലയാളം</button>
-        <button data-act="slang" data-v="en" aria-pressed="${state.scriptLang==='en'}">English</button>
-      </div>
-      <div class="sgrid">${secs.map((s,i)=>`
-        <button class="sthumb" data-act="page" data-i="${i}" aria-label="Page ${i+1}: ${esc(pageLabel(s))}"><canvas data-page="${i}"></canvas><span class="cap">${i+1} · ${esc(pageLabel(s))}</span>${s.parts.some(p=>p.edited) ? '<span class="chg">changed</span>' : ''}</button>`).join('')}
-      </div>      <div class="btn-row">
-        <a class="btn wa sm" data-act="wa-script" href="#" target="_blank" rel="noopener">${ICON.wa} WhatsApp text</a>
-        <button class="btn secondary sm" data-act="pdf">${ICON.save} Download PDF</button>
-      </div>
+      <div class="card-h"><h2 id="h-script">Announcement script</h2><button class="link" data-act="go" data-step="4">Change</button></div>
+      ${pageGrid('pageview')}
+      ${scriptButtons()}
     </section>
   </div>`;
 }
-function savingCard(S){ return `<div class="card"><b>Saving to Google Drive…</b><div class="progress"><i style="width:${Math.round(S.pct)}%"></i></div><p class="hint">${esc(S.msg||'')}</p></div>`; }
+function savingCard(S){ return `<div class="card"><b>Saving… ${Math.round(S.pct)}%</b><div class="progress"><i style="width:${Math.round(S.pct)}%"></i></div><p class="hint">${esc(S.msg||'')}</p></div>`; }
 function savedCard(F){
   const files = fileNames();
   const msg = `${pick('event','en') || 'Program'}${state.program.date ? ' — ' + fmtShortDate(state.program.date) : ''}\nMusic (in order), posters and announcement script:\n${F.url}\n\n` + files.map(f=>f.name).join('\n');
@@ -669,8 +702,9 @@ function savedCard(F){
   </div>`;
 }
 function afterRender(){
-  if(state.step===3 || state.step===4) drawThumbs();
-  if(state.step===4) drawPageThumbs();
+  if(locked()) return;
+  if(state.step===3 || state.step===5) drawThumbs();
+  if(state.step===4 || state.step===5) drawPageThumbs();
 }
 
 /* ---------- music + saving everything to Drive ---------- */
@@ -684,9 +718,7 @@ function setSaving(s){
 }
 function blobToB64(blob){ return new Promise((res,rej)=>{ const fr=new FileReader(); fr.onload=()=>res(String(fr.result).split(',')[1]||''); fr.onerror=()=>rej(fr.error); fr.readAsDataURL(blob); }); }
 function posterBlob(stage, size, lang){
-  const keep = state.pLang; state.pLang = lang;
-  const cv = document.createElement('canvas');
-  try{ renderPoster(cv, stage, size, 1); } finally { state.pLang = keep; }
+  const cv = document.createElement('canvas'); renderPoster(cv, stage, size, 1, lang);
   return new Promise(r=>cv.toBlob(r,'image/jpeg',.92));
 }
 function posterFileName(stage, size, lang){ const st=STAGES.find(s=>s.id===stage).label; return `Poster - ${st} - ${size==='sq'?'Post':'Story'} - ${lang==='ml'?'Malayalam':'English'}.jpg`; }
@@ -696,8 +728,8 @@ async function saveAll(){
   const posters = []; ['en','ml'].forEach(l=>STAGES.forEach(s=>['sq','story'].forEach(z=>posters.push({stage:s.id, size:z, lang:l}))));
   const steps = posters.length + 2; let done = 0;
   const tick = msg => { done++; setSaving({pct: 5 + 95*done/steps, msg}); };
-  state.folder = null; const slot=$('#saveSlot'); if(slot) slot.scrollIntoView({behavior:'smooth', block:'center'});
-  setSaving({pct:3, msg:'Starting…'});
+  // hide everything except the progress while saving
+  state.folder = null; state.saving = {pct:3, msg:'Starting…'}; render(); window.scrollTo(0,0);
   try{
     await ensureFonts(); const p=activePhoto(); if(p) await ensurePhotoImg(p);
     let folder;
@@ -721,10 +753,9 @@ async function saveAll(){
     else await new Promise(r=>setTimeout(r, 300));
     tick('Saved the script PDF');
     folder.summary = `${files.length} songs, ${posters.length} posters and the announcement script PDF.` + (folder.skipped.length ? ` Songs not found: ${folder.skipped.join(', ')}.` : '');
-    state.folder = folder; state.saving = null; save(); render();
-    const s2=$('#saveSlot'); if(s2) s2.scrollIntoView({behavior:'smooth', block:'center'});
+    state.folder = folder; state.saving = null; render(); window.scrollTo(0,0);
     toast(folder.demo ? 'Saved (sample)' : 'Everything is saved to Google Drive');
-  }catch(e){ state.saving = null; render(); toast('Could not save everything: ' + (e && e.message || e)); }
+  }catch(e){ state.saving = null; render(); window.scrollTo(0,0); toast('Could not save everything: ' + (e && e.message || e)); }
 }
 function rerenderPanel(){ render(); }
 
@@ -786,17 +817,18 @@ async function drawPageThumbs(){
   document.querySelectorAll('canvas[data-page]').forEach(cv=>{ const i=+cv.dataset.page, s=secs[i]; if(!s) return;
     const full = renderScriptPage(s,i,secs); cv.width=310; cv.height=Math.round(310*full.height/full.width); cv.getContext('2d').drawImage(full,0,0,cv.width,cv.height); });
 }
-/* page viewer: read one script page large and change its words */
-const PV = {i:0, t:null};
+/* page viewer: read one script page large; on the Script step you can also change its words */
+const PV = {i:0, t:null, view:false};
 function pageOpen(){ return !$('#pviewer').hidden; }
-function openPage(i){ PV.i=i; $('#pviewer').hidden=false; document.body.style.overflow='hidden'; drawPage(true); }
+function openPage(i, viewOnly){ PV.i=i; PV.view=!!viewOnly; $('#pClose').textContent = PV.view ? 'Close' : 'Done';
+  $('#pEdit').innerHTML=''; $('#pviewer').hidden=false; document.body.style.overflow='hidden'; drawPage(true); }
 async function drawPage(withEditors){
   await ensureFonts();
   const secs = buildSections(); PV.i = clamp(PV.i, 0, secs.length-1); const s = secs[PV.i];
   $('#pTitle').textContent = `Page ${PV.i+1} of ${secs.length} · ${pageLabel(s)}`;
   $('#pImg').src = renderScriptPage(s, PV.i, secs).toDataURL('image/jpeg', .9);
   $('#pPrev').disabled = PV.i===0; $('#pNext').disabled = PV.i===secs.length-1;
-  if(!withEditors) return;
+  if(!withEditors || PV.view) return;
   const lenSeg = (act, i, val) => `<div class="seg sm" role="group" aria-label="How much to say"><button data-act="${act}" data-i="${i}" data-v="short" aria-pressed="${val!=='long'}">Short</button><button data-act="${act}" data-i="${i}" data-v="long" aria-pressed="${val==='long'}">Long</button></div>`;
   $('#pEdit').innerHTML = `
     <div class="sec-h"><h3>${esc(s.heading)}</h3>${s.kind==='intro' ? lenSeg('biolen',0,state.bioLen) : s.kind==='item' ? lenSeg('len',s.idx,s.len) : ''}</div>
@@ -807,7 +839,7 @@ async function drawPage(withEditors){
     ${s.parts.some(p=>p.edited) ? `<button class="link" data-act="pundo">Undo my changes on this page</button>` : ''}`;
   document.querySelectorAll('#pEdit textarea').forEach(autosize);
 }
-function closePage(){ $('#pviewer').hidden=true; document.body.style.overflow=''; save(); if(state.step===4) render(); }
+function closePage(){ $('#pviewer').hidden=true; document.body.style.overflow=''; save(); if(state.step===4 && !PV.view) render(); }
 function refreshScript(){ if(pageOpen()) drawPage(true); else render(); }
 /* ---------- script PDF: rendered page by page on canvas so Malayalam is shaped correctly ---------- */
 function renderScriptPage(s, i, secs){
@@ -1148,21 +1180,36 @@ function drawMinimal(ctx,W,H,c,lang,img,adj){
   return info;
 }
 
-function renderPoster(canvas, stage, size, scale){
+function renderPoster(canvas, stage, size, scale, lang){
+  lang = lang==='ml' ? 'ml' : 'en';
   const S=SIZES[size], W=S.w, H=S.h; canvas.width=Math.round(W*scale); canvas.height=Math.round(H*scale);
   const ctx=canvas.getContext('2d'); ctx.setTransform(scale,0,0,scale,0,0); ctx.textBaseline='top';
   const p=activePhoto();
-  return STY[state.pStyle].draw(ctx, W, H, posterText(stage, state.pLang), state.pLang, p && p.img, getAdj(p && p.id, size));
+  return STY[state.pStyle].draw(ctx, W, H, posterText(stage, lang), lang, p && p.img, getAdj(p && p.id, size));
 }
+
+/* the four posters of one stage, in carousel order */
+const POSTER_SET = [{lang:'en', size:'sq'}, {lang:'en', size:'story'}, {lang:'ml', size:'sq'}, {lang:'ml', size:'story'}];
+function posterCarousel(s){
+  return `<div class="stage">
+      <div class="stage-h"><b>${s.label}</b><span>${s.when}</span></div>
+      <div class="car" data-car="${s.id}" role="group" aria-label="${s.label} posters, swipe for more">
+        ${POSTER_SET.map(x=>thumbHTML(s, x.size, x.lang)).join('')}
+      </div>
+      <div class="dots" data-dots="${s.id}">${POSTER_SET.map((x,i)=>`<button data-act="cardot" data-car="${s.id}" data-i="${i}" aria-label="Show ${x.lang==='ml'?'Malayalam':'English'} ${x.size==='sq'?'post':'story'}" aria-current="${i===0}"></button>`).join('')}</div>
+    </div>`;
+}
+/* keep the dots under a carousel in step with where it has been swiped to */
+function carIndex(car){ const items=[...car.children], x=car.scrollLeft; let best=0, d=Infinity;
+  items.forEach((el,i)=>{ const dd=Math.abs(el.offsetLeft - car.firstElementChild.offsetLeft - x); if(dd<d){ d=dd; best=i; } });
+  if(car.scrollLeft + car.clientWidth >= car.scrollWidth - 2) best = items.length-1;
+  return best; }
+document.addEventListener('scroll', e=>{ const car=e.target; if(!car.dataset || !car.dataset.car) return;
+  const i=carIndex(car); document.querySelectorAll(`[data-dots="${car.dataset.car}"] button`).forEach((b,j)=>b.setAttribute('aria-current', String(i===j))); }, true);
 
 function postersPanel(){
   const p = activePhoto(), hasMine = photos.some(x=>x.kind==='mine' || x.kind==='drive');
   return `
-  <div class="ctl"><span class="lbl">Language</span>
-    <div class="seg" role="group" aria-label="Poster language">
-      <button data-act="plang" data-v="en" aria-pressed="${state.pLang==='en'}">English</button>
-      <button data-act="plang" data-v="ml" aria-pressed="${state.pLang==='ml'}" class="ml">മലയാളം</button>
-    </div></div>
   <div class="ctl"><span class="lbl">Style</span>
     <div class="seg" role="group" aria-label="Poster style">
       ${Object.entries(STY).map(([k,s])=>`<button data-act="pstyle" data-v="${k}" aria-pressed="${state.pStyle===k}">${s.label}</button>`).join('')}
@@ -1174,51 +1221,46 @@ function postersPanel(){
     </div>
     ${hasMine ? '' : `<p class="hint">These are placeholder pictures. Tap <b>Add photo</b> to try one of her real photos from the phone.</p>`}
   </div>
-  ${STAGES.map(s=>`
-    <div class="stage">
-      <div class="stage-h"><b>${s.label}</b><span>${s.when}</span></div>
-      <div class="thumbs">
-        ${thumbHTML(s,'sq')}${thumbHTML(s,'story')}
-      </div>
-    </div>`).join('')}
-  <p class="hint">Tap a poster to see it large, move the photo, and save or share it.</p>`;
+  ${STAGES.map(posterCarousel).join('')}
+  <p class="hint">Swipe sideways to see the English and Malayalam posters. Tap a poster to see it large, move the photo, and save or share it.</p>`;
 }
 /* one poster thumbnail: tap the picture to preview; tap the round icon to save or share it straight away */
-function thumbHTML(s, size){
-  const lbl = size==='sq' ? 'Post' : 'Story';
-  return `<div class="tw"><button class="thumb" data-act="open" data-stage="${s.id}" data-size="${size}" aria-label="Preview ${s.label}, ${size==='sq'?'square post':'story'}"><canvas data-stage="${s.id}" data-size="${size}"></canvas><span class="cap">${lbl}</span></button><button class="dl" data-act="dlposter" data-stage="${s.id}" data-size="${size}" aria-label="Save or share ${s.label} ${lbl.toLowerCase()}" title="Save or share">${ICON.share}</button></div>`;
+function thumbHTML(s, size, lang){
+  const lbl = size==='sq' ? 'Post' : 'Story', ln = lang==='ml' ? 'Malayalam' : 'English', d = `data-stage="${s.id}" data-size="${size}" data-lang="${lang}"`;
+  return `<div class="tw ${size}"><button class="thumb" data-act="open" ${d} aria-label="Preview ${s.label}, ${ln} ${size==='sq'?'square post':'story'}"><canvas ${d}></canvas><span class="cap">${lang==='ml'?'മലയാളം':'English'} · ${lbl}</span></button><button class="dl" data-act="dlposter" ${d} aria-label="Save or share ${s.label} ${ln} ${lbl.toLowerCase()}" title="Save or share">${ICON.share}</button></div>`;
 }
-function posterDownloadName(stage, size){
+function posterDownloadName(stage, size, lang){
   const slug = (pick('event','en')||'program').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40) || 'program';
-  return `${slug}-${stage}-${size==='sq'?'post':'story'}-${state.pLang==='ml'?'malayalam':'english'}.jpg`;
+  return `${slug}-${stage}-${size==='sq'?'post':'story'}-${lang==='ml'?'malayalam':'english'}.jpg`;
 }
 function dataUrlToBlob(u){ const [h,b]=u.split(','), bin=atob(b), a=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) a[i]=bin.charCodeAt(i); return new Blob([a],{type:(h.match(/:(.*?);/)||[])[1]||'image/jpeg'}); }
 /* made without waiting, so the iPhone share sheet still counts it as part of the tap */
-function downloadPoster(stage, size, btn){
-  const cv = document.createElement('canvas'); renderPoster(cv, stage, size, 1);
+function downloadPoster(stage, size, lang, btn){
+  const cv = document.createElement('canvas'); renderPoster(cv, stage, size, 1, lang);
   const blob = dataUrlToBlob(cv.toDataURL('image/jpeg', .92));
   if(btn) btn.disabled = true;
-  shareFile(blob, posterDownloadName(stage, size), 'Open the poster and press and hold it, then tap Save to Photos.').finally(()=>{ if(btn) btn.disabled = false; });
+  shareFile(blob, posterDownloadName(stage, size, lang), 'Open the poster and press and hold it, then tap Save to Photos.').finally(()=>{ if(btn) btn.disabled = false; });
 }
 let drawToken = 0;
 async function drawThumbs(){
   const my = ++drawToken; await ensureFonts(); const p=activePhoto(); if(p) await ensurePhotoImg(p);
   if(my!==drawToken) return;
-  document.querySelectorAll('.thumb canvas').forEach(cv=>{ const sz=cv.dataset.size; renderPoster(cv, cv.dataset.stage, sz, sz==='sq' ? .42 : .3); });
+  document.querySelectorAll('.thumb canvas').forEach(cv=>{ const sz=cv.dataset.size; renderPoster(cv, cv.dataset.stage, sz, sz==='sq' ? .42 : .3, cv.dataset.lang); });
 }
 
-/* ---- viewer ---- */
-const V = {stage:null, size:null, adjusting:false, info:null, drag:null};
-async function openViewer(stage, size){
-  V.stage=stage; V.size=size; V.adjusting=false;
-  $('#vTitle').textContent = `${STAGES.find(s=>s.id===stage).label} · ${SIZES[size].label}`;
+/* ---- viewer: on the Posters step you can also move the photo; on Review it only shows the poster ---- */
+const V = {stage:null, size:null, lang:'en', view:false, adjusting:false, info:null, drag:null};
+async function openViewer(stage, size, lang){
+  V.stage=stage; V.size=size; V.lang=lang==='ml'?'ml':'en'; V.view = state.step!==3; V.adjusting=false;
+  $('#vTitle').textContent = `${STAGES.find(s=>s.id===stage).label} · ${V.lang==='ml'?'Malayalam':'English'} ${SIZES[size].label.toLowerCase()}`;
+  $('#vClose').textContent = V.view ? 'Close' : 'Done';
   $('#viewer').hidden=false; document.body.style.overflow='hidden';
   await ensureFonts(); drawViewer(true); vTools();
 }
 function drawViewer(updateImg){
-  const cv=$('#vCanvas'); V.info = renderPoster(cv, V.stage, V.size, 1);
+  const cv=$('#vCanvas'); V.info = renderPoster(cv, V.stage, V.size, 1, V.lang);
   if(updateImg){ $('#vImg').src = cv.toDataURL('image/jpeg', .9); }
-  $('#vImg').hidden = V.adjusting; cv.hidden = !V.adjusting; $('#vMove').hidden = V.adjusting;
+  $('#vImg').hidden = V.adjusting; cv.hidden = !V.adjusting; $('#vMove').hidden = V.adjusting || V.view;
 }
 function vTools(){
   const a=getAdj(activePhoto() && activePhoto().id, V.size);
@@ -1228,14 +1270,7 @@ function vTools(){
     <div class="btn-row"><button class="btn secondary" data-act="vreset">Reset</button><button class="btn" data-act="vdoneadj">Done moving</button></div>`
   : '';
 }
-function closeViewer(){ $('#viewer').hidden=true; document.body.style.overflow=''; save(); if(state.step===3 || state.step===4) drawThumbs(); }
-async function savePoster(){
-  const cv=$('#vCanvas'); drawViewer(false);
-  const blob = await new Promise(r=>cv.toBlob(r,'image/jpeg',.92));
-  const slug = (pick('event','en')||'program').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40) || 'program';
-  const name = `${slug}-${V.stage}-${V.size==='sq'?'post':'story'}-${state.pLang==='ml'?'malayalam':'english'}.jpg`;
-  await shareFile(blob, name, 'Press and hold the poster, then tap Save to Photos.');
-}
+function closeViewer(){ $('#viewer').hidden=true; document.body.style.overflow=''; save(); if(state.step===3 && !V.view) drawThumbs(); }
 function bindViewerDrag(){
   const cv=$('#vCanvas');
   cv.addEventListener('pointerdown', e=>{ if(!V.adjusting) return; cv.setPointerCapture(e.pointerId); V.drag={x:e.clientX, y:e.clientY}; e.preventDefault(); });
@@ -1262,7 +1297,7 @@ document.addEventListener('click', e=>{
   const act=b.dataset.act, i=+b.dataset.i;
   if(act!=='clear' && act!=='newprog') disarm();
   switch(act){
-    case 'go': { const s=+b.dataset.step; if(s>1 && !validItems().length){ state.step=1; toast('Add at least one item first'); } else state.step=s; save(); render(); window.scrollTo(0,0); break; }
+    case 'go': { if(state.saving) break; const s=+b.dataset.step; if(s>1 && !validItems().length){ state.step=1; toast('Add at least one item first'); } else state.step=s; save(); render(); window.scrollTo(0,0); break; }
     case 'add': { const r=rep(b.dataset.id); state.items.push({id:b.dataset.id, len:'short'}); state.q=''; save(); flipRender(b.dataset.id); toast(`Added as item ${validItems().length}: ${r ? r.itemEn : ''}`); break; }
     case 'clearq': state.q=''; { const q=$('#q'); if(q){ q.value=''; q.focus(); } } applySearch(); break;
     case 'remove': { state.items = validItems(); const gone=state.items[i]; if(!gone) break; const r=rep(gone.id); const card=b.closest('.pi');
@@ -1274,28 +1309,30 @@ document.addEventListener('click', e=>{
       const r=rep(mv.id); toast(`${r ? r.itemEn : 'Item'} is now item ${j+1}`);
       const btn = document.querySelector(`[data-act="${act}"][data-i="${j}"]`); if(btn && !btn.disabled) btn.focus({preventScroll:true}); break; }
     case 'clear': if(!state.clearArm){ state.clearArm=true; render(); } else { state.clearArm=false; state.program=blankProgram(); state.folder=null; state.pdf=null; save(); render(); toast('Details cleared'); } break;
-    case 'newprog': if(!state.clearArm){ state.clearArm=true; render(); } else { state.clearArm=false; state.program=blankProgram(); state.items=[]; state.folder=null; state.pdf=null; state.edits={}; state.step=1; state.tab='music'; save(); render(); window.scrollTo(0,0); toast('Ready for a new program'); } break;
+    case 'newprog': state.program=blankProgram(); state.items=[]; state.folder=null; state.pdf=null; state.edits={}; state.editsSig=''; state.q=''; state.step=1; render(); window.scrollTo(0,0); toast('Ready for a new program'); break;
     case 'saveall': saveAll(); break;
     case 'copy-folder': copyText(state.folder ? state.folder.url : ''); break;
     case 'wa-folder': break;
     case 'slang': state.scriptLang=b.dataset.v; save(); render(); break;
     case 'biolen': state.bioLen=b.dataset.v; delete state.edits['intro|en']; delete state.edits['intro|ml']; save(); refreshScript(); break;
     case 'len': { const it=validItems()[i]; if(it){ it.len=b.dataset.v; state.items=validItems(); delete state.edits['item-'+it.id+'|en']; delete state.edits['item-'+it.id+'|ml']; state.editsSig=sig(); save(); refreshScript(); } break; }
-    case 'page': openPage(i); break;
+    case 'page': openPage(i, false); break;
+    case 'pageview': openPage(i, true); break;
     case 'pclose': closePage(); break;
     case 'pprev': PV.i--; drawPage(true); break;
     case 'pnext': PV.i++; drawPage(true); break;
+    case 'cardot': { const car=document.querySelector(`.car[data-car="${b.dataset.car}"]`), el=car && car.children[i];
+      if(el) car.scrollTo({left: el.offsetLeft - car.firstElementChild.offsetLeft, behavior:'smooth'}); break; }
     case 'pundo': { const s=buildSections()[PV.i]; if(s){ delete state.edits[s.id+'|en']; delete state.edits[s.id+'|ml']; save(); drawPage(true); toast('Back to the original words'); } break; }
     case 'wa-script': b.href = waHref(scriptText()); break;
     case 'pdf': downloadScriptPdf(b); break;
-    case 'plang': state.pLang=b.dataset.v; save(); rerenderPanel(); break;
     case 'pstyle': state.pStyle=b.dataset.v; save(); rerenderPanel(); break;
     case 'photo': if(e.target.closest('.x')) break; state.photoId=b.dataset.id; save(); rerenderPanel(); break;
     case 'delphoto': { e.stopPropagation(); const id=b.dataset.id; const idx=photos.findIndex(p=>p.id===id); if(idx>=0) photos.splice(idx,1); IDB.del(id); if(state.photoId===id) state.photoId=null; save(); rerenderPanel(); toast('Photo removed from this phone'); break; }
     case 'addphoto': $('#fileIn').click(); break;
-    case 'open': openViewer(b.dataset.stage, b.dataset.size); break;
+    case 'open': openViewer(b.dataset.stage, b.dataset.size, b.dataset.lang); break;
     case 'vclose': closeViewer(); break;
-    case 'dlposter': downloadPoster(b.dataset.stage, b.dataset.size, b); break;
+    case 'dlposter': downloadPoster(b.dataset.stage, b.dataset.size, b.dataset.lang, b); break;
     case 'vadjust': V.adjusting=true; drawViewer(false); vTools(); break;
     case 'vdoneadj': V.adjusting=false; drawViewer(true); vTools(); save(); break;
     case 'vreset': { const p=activePhoto(); delete state.adjust[(p?p.id:'none')+'|'+V.size]; drawViewer(false); vTools(); break; }
@@ -1313,6 +1350,8 @@ document.addEventListener('input', e=>{
 $('#fileIn').addEventListener('change', e=>{ const fs=[...e.target.files]; e.target.value=''; if(fs.length) addPhotoFiles(fs); });
 document.addEventListener('keydown', e=>{ if(e.key!=='Escape') return; if(!$('#viewer').hidden) closeViewer(); else if(pageOpen()) closePage(); });
 window.addEventListener('resize', ()=>document.documentElement.style.setProperty('--hdr', $('#top').offsetHeight + 'px'));
+// ask before leaving while the Drive save is still running
+window.addEventListener('beforeunload', e=>{ if(state.saving){ e.preventDefault(); e.returnValue=''; } });
 
 /* ================================================================
    START
