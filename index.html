@@ -1,0 +1,1347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Program Kit">
+<meta name="theme-color" content="#8A1B2C">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Program Kit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700&family=Manjari:wght@400;700&family=Marcellus&family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;600;700&family=Noto+Serif+Malayalam:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one centred column (max 640px) — sticky header with step tabs, big touch targets, sticky bottom action bar */
+:root{
+  --bg:#FBF8F7; --surface:#FFFFFF; --sunk:#F2ECEA; --ink:#26171B; --muted:#6C5A5F; --line:#E5DAD7;
+  --accent:#8A1B2C; --accent-ink:#FFFFFF; --accent-soft:#F6E4E6; --gold:#9C7015; --ok:#2C6E47; --ok-soft:#E3F1E8; --warn:#8A5300; --warn-soft:#FBEFD9;
+  --display:"Marcellus","Cormorant Garamond",Georgia,serif;
+  --body:"Inter","Noto Sans Malayalam",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#161012; --surface:#211A1C; --sunk:#2B2225; --ink:#F4EAEC; --muted:#BBA9AE; --line:#3B2F33;
+  --accent:#E06A7D; --accent-ink:#1A0B0F; --accent-soft:#3A1E25; --gold:#DDB45A; --ok:#7CCB98; --ok-soft:#1E3327; --warn:#F0B35A; --warn-soft:#3A2B14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#161012; --surface:#211A1C; --sunk:#2B2225; --ink:#F4EAEC; --muted:#BBA9AE; --line:#3B2F33;
+  --accent:#E06A7D; --accent-ink:#1A0B0F; --accent-soft:#3A1E25; --gold:#DDB45A; --ok:#7CCB98; --ok-soft:#1E3327; --warn:#F0B35A; --warn-soft:#3A2B14; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.5;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.2;text-wrap:balance;margin:0}
+h1{font-size:1.75rem}
+h2{font-size:1.35rem}
+p{margin:0}
+.muted{color:var(--muted)}
+.stack{display:flex;flex-direction:column;gap:16px}
+.stack-sm{display:flex;flex-direction:column;gap:8px}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-in{padding-block:10px 8px;display:flex;flex-direction:column;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.brand-name{font-family:var(--display);font-size:1.3rem;display:flex;align-items:center;gap:8px}
+.brand-name svg{color:var(--gold)}
+.chip{font-size:.75rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:var(--warn-soft);color:var(--warn);white-space:nowrap}
+.chip.live{background:var(--ok-soft);color:var(--ok)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.steps button{border:0;background:var(--sunk);border-radius:10px;min-height:44px;font-size:.84rem;font-weight:600;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:5px;padding:0 4px;min-width:0}
+.steps button .n{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:.78rem;background:var(--line);color:var(--ink)}
+.steps button[aria-current="step"]{background:var(--accent);color:var(--accent-ink)}
+.steps button[aria-current="step"] .n{background:var(--accent-ink);color:var(--accent)}
+
+main{padding-block:20px 140px}
+.lead{display:flex;flex-direction:column;gap:6px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:56px;padding:0 22px;border-radius:var(--r);border:0;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:1.05rem;text-decoration:none;text-align:center}
+.btn.secondary{background:var(--sunk);color:var(--ink)}
+.btn.outline{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn.wa{background:#1F8F4E;color:#fff}
+.btn.block{width:100%}
+.btn.sm{min-height:46px;font-size:.95rem;padding:0 16px}
+.btn[disabled]{opacity:.5;cursor:default}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-row.one{grid-template-columns:1fr}
+.link{background:none;border:0;padding:6px 0;color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.icon-btn{width:48px;height:48px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);display:grid;place-items:center;color:var(--ink)}
+.icon-btn[disabled]{opacity:.35}
+
+/* segmented */
+.seg{display:flex;background:var(--sunk);border-radius:12px;padding:4px;gap:4px}
+.seg button{flex:1;min-height:44px;border:0;background:transparent;border-radius:9px;font-weight:600;color:var(--muted);padding:0 8px}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.seg.sm button{min-height:38px;font-size:.88rem}
+.ctl{display:flex;flex-direction:column;gap:6px}
+.ctl > .lbl{font-size:.85rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+
+/* step 1 */
+.prog{display:flex;flex-direction:column;gap:10px}
+.pi{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.num{width:38px;height:38px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-variant-numeric:tabular-nums}
+.pi-main{min-width:0}
+.pi-title{font-weight:600;line-height:1.3}
+.pi-meta{font-size:.88rem;color:var(--muted)}
+.pi-ctrl{display:flex;gap:6px}
+.pi{position:relative;transition:background-color .5s ease, box-shadow .5s ease}
+.pi.moved{z-index:2;background:var(--accent-soft);box-shadow:0 0 0 2.5px var(--accent),0 10px 24px rgba(0,0,0,.14)}
+.pi.moved .num{animation:numPop .5s ease}
+.pi.appear{animation:piIn .45s cubic-bezier(.2,.7,.2,1)}
+.pi.leaving{animation:piOut .26s ease-in forwards;pointer-events:none}
+@keyframes piIn{from{opacity:0;transform:translateY(-14px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes piOut{to{opacity:0;transform:translateX(40px)}}
+@keyframes numPop{40%{transform:scale(1.25)}}
+.total{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:.95rem;color:var(--muted);padding:2px 4px}
+.total b{color:var(--ink);font-variant-numeric:tabular-nums}
+.empty{padding:22px;border:2px dashed var(--line);border-radius:var(--r);text-align:center;color:var(--muted)}
+.rep{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.rr{display:flex;align-items:center;gap:12px;width:100%;padding:14px;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left}
+.rr:last-child{border-bottom:0}
+.rr-main{flex:1;min-width:0;display:flex;flex-direction:column}
+.rr-type{font-size:.78rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--gold)}
+.rr-title{font-weight:600}
+.rr-meta{font-size:.88rem;color:var(--muted)}
+.search{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr,112px));z-index:3;background:var(--bg);padding-block:6px}
+.search-in{position:relative}
+.search-in svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.search-in input{width:100%;min-height:54px;font-size:1.08rem;padding:10px 52px 10px 46px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);-webkit-appearance:none;appearance:none}
+.search-in input:focus{border-color:var(--accent);outline:none}
+.search-in .clr{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:42px;height:42px;border:0;border-radius:10px;background:var(--sunk);color:var(--ink);display:grid;place-items:center}
+.count{font-size:.88rem;color:var(--muted);padding:6px 4px 0}
+.rr-add{flex:none;display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:8px 14px;border-radius:999px;font-size:.95rem}
+
+/* fields */
+.field{display:flex;flex-direction:column;gap:8px;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.field > label,.field > .flabel{font-weight:600}
+.field .opt{font-weight:400;color:var(--muted);font-size:.9rem}
+.inp{position:relative}
+.inp input{width:100%;min-height:52px;font-size:1.05rem;padding:10px 14px 10px 54px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
+.inp input:focus{border-color:var(--accent);outline:none}
+.inp .tag{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.72rem;font-weight:700;letter-spacing:.04em;color:var(--muted);background:var(--sunk);border-radius:6px;padding:3px 6px}
+.inp.plain input{padding-left:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.two .field{min-width:0}
+.ml{font-family:"Noto Sans Malayalam","Manjari",var(--body)}
+.hint{font-size:.88rem;color:var(--muted)}
+
+/* bottom bar */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);padding-block:12px calc(12px + env(safe-area-inset-bottom,0px))}
+.bar .btn-row{max-width:640px;margin:0 auto}
+
+/* ready */
+.summary{padding:16px;border-radius:var(--r);background:var(--accent-soft);display:flex;flex-direction:column;gap:4px}
+.summary .ev{font-family:var(--display);font-size:1.3rem;line-height:1.25}
+.summary .sm{font-size:.95rem;color:var(--muted)}
+.tabs{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr,112px));z-index:4;background:var(--bg);padding-block:8px}
+.panel{display:flex;flex-direction:column;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px}
+.warn{background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:12px 14px;font-size:.95rem}
+.okbox{background:var(--ok-soft);color:var(--ok);border-radius:12px;padding:12px 14px;font-size:.95rem}
+
+.files{display:flex;flex-direction:column}
+.file{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.98rem}
+.file:last-child{border-bottom:0}
+.file .fn{min-width:0;overflow-wrap:anywhere}
+.file .du{color:var(--muted);font-variant-numeric:tabular-nums;flex:none}
+.progress{height:10px;border-radius:999px;background:var(--sunk);overflow:hidden}
+.progress > i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.tips{display:flex;flex-direction:column;gap:10px;font-size:.95rem}
+.tips div{display:grid;grid-template-columns:auto 1fr;gap:10px}
+.tips b{color:var(--ink)}
+.tips .k{width:28px;height:28px;border-radius:8px;background:var(--sunk);display:grid;place-items:center;color:var(--gold)}
+.linkbox{font-size:.92rem;padding:10px 12px;border-radius:10px;background:var(--sunk);overflow-wrap:anywhere;user-select:all}
+
+.sec{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px}
+.sec-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.sec-h h3{font-size:1.12rem;font-family:var(--body);font-weight:700}
+.sec-h .seg{flex:none;width:170px}
+.part{display:flex;flex-direction:column;gap:4px}
+.part .pl{font-size:.75rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.part textarea{width:100%;border:1.5px solid transparent;border-radius:10px;background:var(--sunk);padding:12px;font-size:1.02rem;line-height:1.6;resize:none;overflow:hidden;min-height:60px}
+.part textarea:focus{outline:none;border-color:var(--accent);background:var(--bg)}
+.part textarea.ml{font-size:1.05rem;line-height:1.8}
+.edited{font-size:.75rem;color:var(--gold);font-weight:600}
+
+.photos{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.ph{flex:none;width:76px;height:96px;border-radius:12px;border:3px solid transparent;padding:0;overflow:hidden;background:var(--sunk);position:relative}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph[aria-pressed="true"]{border-color:var(--accent)}
+.ph.add{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:.78rem;font-weight:600;color:var(--accent);border:2px dashed var(--accent);background:var(--accent-soft)}
+.ph .x{position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;display:grid;place-items:center;font-size:14px;line-height:1}
+.stage{display:flex;flex-direction:column;gap:8px}
+.stage-h{display:flex;flex-direction:column}
+.stage-h b{font-size:1.05rem}
+.stage-h span{font-size:.9rem;color:var(--muted)}
+.thumbs{display:grid;grid-template-columns:1fr .5625fr;gap:10px;align-items:start}
+.thumb{border:0;padding:0;background:var(--sunk);border-radius:10px;overflow:hidden;display:block;width:100%;position:relative}
+.thumb canvas{width:100%;height:auto;display:block}
+.tw{position:relative;min-width:0}
+.dl{position:absolute;top:6px;right:6px;width:42px;height:42px;padding:0;border-radius:50%;border:2px solid rgba(255,255,255,.9);background:rgba(20,10,12,.68);color:#FFFFFF;display:grid;place-items:center;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.dl[disabled]{opacity:.6}
+.card-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.card-h h2{font-size:1.3rem}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sthumb{border:1px solid var(--line);padding:0;background:#FFFFFF;border-radius:8px;overflow:hidden;display:block;width:100%;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.sthumb canvas{width:100%;height:auto;display:block}
+.sthumb .chg{position:absolute;top:5px;right:5px;font-size:.66rem;font-weight:700;background:var(--gold);color:#FFFFFF;padding:2px 6px;border-radius:6px}
+.btn-row.save-row{grid-template-columns:1fr 2.2fr}
+.pnav{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.thumb .cap,.sthumb .cap{position:absolute;left:6px;bottom:6px;font-size:.7rem;font-weight:700;background:rgba(0,0,0,.6);color:#fff;padding:3px 7px;border-radius:6px;letter-spacing:.03em}
+
+/* viewer */
+.viewer{position:fixed;inset:0;z-index:20;background:var(--bg);overflow-y:auto;padding-block:calc(env(safe-area-inset-top,0px) + 10px) calc(env(safe-area-inset-bottom,0px) + 24px)}
+.viewer .wrap{display:flex;flex-direction:column;gap:14px}
+.v-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.v-top b{font-size:1.05rem}
+.v-stage{display:flex;justify-content:center;background:var(--sunk);border-radius:var(--r);padding:10px}
+.v-stage img,.v-stage canvas{max-width:100%;max-height:62vh;width:auto;height:auto;display:block;border-radius:6px;box-shadow:0 4px 18px rgba(0,0,0,.18)}
+.v-stage canvas{touch-action:none;cursor:grab}
+.v-stage{position:relative}
+.vmove{position:absolute;top:18px;right:18px;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 13px;border-radius:999px;border:2px solid rgba(255,255,255,.9);background:rgba(20,10,12,.7);color:#FFFFFF;font-size:.88rem;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.zoom{display:flex;align-items:center;gap:12px}
+.zoom input{flex:1;accent-color:var(--accent);height:36px}
+
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-weight:600;font-size:.95rem;max-width:calc(100% - 32px);text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:420px){.two{grid-template-columns:1fr}.sec-h .seg{width:100%}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<header class="top" id="top">
+  <div class="wrap top-in">
+    <div class="brand">
+      <div class="brand-name">
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2c1.8 2.6 2.7 4.6 2.7 6.1A2.7 2.7 0 0 1 12 10.8a2.7 2.7 0 0 1-2.7-2.7C9.3 6.6 10.2 4.6 12 2Zm-7 10h14v1.6c0 1-.8 1.9-1.9 1.9h-3.4v3.3h2.6V21H7.7v-2.2h2.6v-3.3H6.9C5.8 15.5 5 14.6 5 13.6V12Z"/></svg>
+        <span>Program Kit</span>
+      </div>
+      <span class="chip" id="modeChip">Sample data</span>
+    </div>
+    <nav class="steps" aria-label="Steps">
+      <button data-act="go" data-step="1"><span class="n">1</span>Items</button>
+      <button data-act="go" data-step="2"><span class="n">2</span>Details</button>
+      <button data-act="go" data-step="3"><span class="n">3</span>Posters</button>
+      <button data-act="go" data-step="4"><span class="n">4</span>Review</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="main" aria-live="polite"></main>
+<div class="bar" id="bar"><div class="wrap"><div class="btn-row" id="barRow"></div></div></div>
+
+<div class="viewer" id="viewer" hidden>
+  <div class="wrap">
+    <div class="v-top"><b id="vTitle">Poster</b><button class="btn sm secondary" data-act="vclose">Done</button></div>
+    <div class="v-stage" id="vStage">
+      <img id="vImg" alt="Poster preview">
+      <canvas id="vCanvas" hidden aria-label="Drag to move the photo"></canvas>
+      <button class="vmove" id="vMove" data-act="vadjust"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M12 3v18M3 12h18M12 3 9.5 5.5M12 3l2.5 2.5M12 21l-2.5-2.5M12 21l2.5-2.5M3 12l2.5-2.5M3 12l2.5 2.5M21 12l-2.5-2.5M21 12l-2.5 2.5"/></svg>Move photo</button>
+    </div>
+    <div id="vTools" class="stack-sm"></div>
+  </div>
+</div>
+<div class="viewer" id="pviewer" hidden>
+  <div class="wrap">
+    <div class="v-top"><b id="pTitle">Script page</b><button class="btn sm secondary" data-act="pclose">Done</button></div>
+    <div class="v-stage"><img id="pImg" alt="Script page preview"></div>
+    <div class="pnav"><button class="btn sm outline" id="pPrev" data-act="pprev">Previous page</button><button class="btn sm outline" id="pNext" data-act="pnext">Next page</button></div>
+    <div id="pEdit" class="stack-sm"></div>
+  </div>
+</div>
+<input type="file" id="fileIn" accept="image/*" multiple class="sr" tabindex="-1" aria-hidden="true">
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ================================================================
+   SETTINGS — the only line you need to change for the real version.
+   Paste the Google Apps Script "Web app" URL between the quotes.
+   Leave it empty to run with the built-in sample data.
+   ================================================================ */
+const CONFIG = { API_URL: 'https://script.google.com/macros/s/AKfycbxVnAHBvTpfxEH5JUkcX1p7IMMllnNl6xeHTvGjY9FWr25tUr80xxGYqWLB4P0ztqw-jA/exec' };
+
+const LIVE = /^https:\/\/script\.google\.com\//.test(CONFIG.API_URL || '');
+const KEY = (()=>{ try{ return new URLSearchParams(location.search).get('k') || ''; }catch(e){ return ''; } })();
+
+/* ---------------- sample data (used when API_URL is empty) ---------------- */
+const SAMPLE = {
+  repertoire: [
+    {id:'pushpanjali', typeEn:'Pushpanjali', typeMl:'പുഷ്പാഞ്ജലി', itemEn:'Pushpanjali', itemMl:'പുഷ്പാഞ്ജലി', ragamEn:'Nattai', ragamMl:'നാട്ട', thalamEn:'Adi', thalamMl:'ആദി', composerEn:'', composerMl:'', duration:'6:10',
+     shortEn:'An offering of flowers to the Lord, the Guru and the audience, seeking blessings for the performance.',
+     shortMl:'ഭഗവാനും ഗുരുവിനും സദസ്സിനും പുഷ്പങ്ങൾ അർപ്പിച്ച്, നൃത്തത്തിന് അനുഗ്രഹം തേടുന്ന ആരംഭനൃത്തം.',
+     longEn:'An offering of flowers to the Lord, the Guru and the audience, seeking blessings for the performance. Through crisp rhythmic patterns and graceful movements, the dancer salutes the stage, the musicians and the rasikas before the recital begins.',
+     longMl:'ഭഗവാനും ഗുരുവിനും സദസ്സിനും പുഷ്പങ്ങൾ അർപ്പിച്ച്, നൃത്തത്തിന് അനുഗ്രഹം തേടുന്ന ആരംഭനൃത്തം. ലയഭംഗിയുള്ള ചുവടുകളിലൂടെ നർത്തകി വേദിയെയും വാദ്യക്കാരെയും ആസ്വാദകരെയും വന്ദിക്കുന്നു.'},
+    {id:'ganesha', typeEn:'Ganesha Stuthi', typeMl:'ഗണേശ സ്തുതി', itemEn:'Vathapi Ganapatim', itemMl:'വാതാപി ഗണപതിം', ragamEn:'Hamsadhwani', ragamMl:'ഹംസധ്വനി', thalamEn:'Adi', thalamMl:'ആദി', composerEn:'Muthuswami Dikshitar', composerMl:'മുത്തുസ്വാമി ദീക്ഷിതർ', duration:'5:40',
+     shortEn:'A prayer to Lord Ganesha, the remover of obstacles.',
+     shortMl:'വിഘ്നങ്ങൾ അകറ്റുന്ന ഗണപതി ഭഗവാനോടുള്ള പ്രാർത്ഥന.',
+     longEn:'A prayer to Lord Ganesha, the remover of obstacles. This famous kriti describes the elephant-faced Lord of Vatapi, who is worshipped first before any auspicious beginning.',
+     longMl:'വിഘ്നങ്ങൾ അകറ്റുന്ന ഗണപതി ഭഗവാനോടുള്ള പ്രാർത്ഥന. ഏതു ശുഭകാര്യത്തിനും മുമ്പ് ആദ്യം വന്ദിക്കുന്ന വാതാപി ഗണപതിയെ ഈ പ്രശസ്ത കൃതി വർണ്ണിക്കുന്നു.'},
+    {id:'alarippu', typeEn:'Alarippu', typeMl:'അലാരിപ്പ്', itemEn:'Alarippu', itemMl:'അലാരിപ്പ്', ragamEn:'', ragamMl:'', thalamEn:'Tisra Eka', thalamMl:'തിസ്ര ഏകം', composerEn:'', composerMl:'', duration:'3:50',
+     shortEn:'A pure dance piece set only to rhythm, in which the movements blossom like a flower, from the eyes to the limbs.',
+     shortMl:'താളത്തിനനുസരിച്ച് മാത്രം ചിട്ടപ്പെടുത്തിയ ശുദ്ധനൃത്തം; പൂ വിരിയുന്നതുപോലെ കണ്ണുകൾ മുതൽ കൈകാലുകൾ വരെ ചലനങ്ങൾ വിടരുന്നു.',
+     longEn:'A pure dance piece set only to rhythm, in which the movements blossom like a flower, from the eyes to the limbs. Traditionally the first item of a margam, it prepares both the dancer and the audience for the recital.',
+     longMl:'താളത്തിനനുസരിച്ച് മാത്രം ചിട്ടപ്പെടുത്തിയ ശുദ്ധനൃത്തം; പൂ വിരിയുന്നതുപോലെ കണ്ണുകൾ മുതൽ കൈകാലുകൾ വരെ ചലനങ്ങൾ വിടരുന്നു. മാർഗ്ഗത്തിലെ പരമ്പരാഗതമായ ആദ്യ ഇനമായ അലാരിപ്പ് നർത്തകിയെയും സദസ്സിനെയും തുടർന്നുള്ള അവതരണത്തിനായി ഒരുക്കുന്നു.'},
+    {id:'jathiswaram', typeEn:'Jathiswaram', typeMl:'ജതിസ്വരം', itemEn:'Jathiswaram', itemMl:'ജതിസ്വരം', ragamEn:'Vasantha', ragamMl:'വസന്ത', thalamEn:'Rupakam', thalamMl:'രൂപകം', composerEn:'the Tanjore Quartet', composerMl:'തഞ്ചാവൂർ നാൽവർ', duration:'7:20',
+     shortEn:'A pure dance item weaving intricate rhythmic patterns to the swaras of the raga.',
+     shortMl:'രാഗത്തിന്റെ സ്വരങ്ങൾക്കൊപ്പം സങ്കീർണ്ണമായ താളക്രമങ്ങൾ നെയ്തെടുക്കുന്ന ശുദ്ധനൃത്തം.',
+     longEn:'A pure dance item weaving intricate rhythmic patterns to the swaras of the raga. There is no story here; the beauty lies in the geometry of the movements and the dancer’s precision with rhythm.',
+     longMl:'രാഗത്തിന്റെ സ്വരങ്ങൾക്കൊപ്പം സങ്കീർണ്ണമായ താളക്രമങ്ങൾ നെയ്തെടുക്കുന്ന ശുദ്ധനൃത്തം. ഇതിൽ കഥയില്ല; ചുവടുകളുടെ ജ്യാമിതീയ ഭംഗിയിലും താളത്തിലെ കൃത്യതയിലുമാണ് ഇതിന്റെ സൗന്ദര്യം.'},
+    {id:'varnam', typeEn:'Varnam', typeMl:'വർണ്ണം', itemEn:'Mohamana', itemMl:'മോഹമാന', ragamEn:'Bhairavi', ragamMl:'ഭൈരവി', thalamEn:'Adi', thalamMl:'ആദി', composerEn:'Ponnaiah of the Tanjore Quartet', composerMl:'പൊന്നയ്യ (തഞ്ചാവൂർ നാൽവർ)', duration:'28:45',
+     shortEn:'The centrepiece of the recital, combining pure dance and storytelling as the heroine expresses her love and longing for the Lord.',
+     shortMl:'നൃത്തത്തിന്റെ കേന്ദ്രഭാഗം. ശുദ്ധനൃത്തവും അഭിനയവും ഇഴചേർന്ന ഈ ഇനത്തിൽ നായിക ഭഗവാനോടുള്ള പ്രണയവും വിരഹവും ആവിഷ്കരിക്കുന്നു.',
+     longEn:'The centrepiece of the recital, combining pure dance and storytelling as the heroine expresses her love and longing for the Lord. Fast rhythmic passages alternate with slow, emotive lines, testing the dancer’s stamina, rhythm and abhinaya alike.',
+     longMl:'നൃത്തത്തിന്റെ കേന്ദ്രഭാഗം. ശുദ്ധനൃത്തവും അഭിനയവും ഇഴചേർന്ന ഈ ഇനത്തിൽ നായിക ഭഗവാനോടുള്ള പ്രണയവും വിരഹവും ആവിഷ്കരിക്കുന്നു. വേഗമേറിയ താളഭാഗങ്ങളും പതിഞ്ഞ ഭാവപ്രധാന വരികളും മാറിമാറി വരുന്ന വർണ്ണം നർത്തകിയുടെ കായികശേഷിയും താളബോധവും അഭിനയമികവും ഒരുപോലെ പരീക്ഷിക്കുന്നു.'},
+    {id:'krishna', typeEn:'Keerthanam', typeMl:'കീർത്തനം', itemEn:'Krishna Nee Begane Baro', itemMl:'കൃഷ്ണാ നീ ബേഗനേ ബാരോ', ragamEn:'Yamuna Kalyani', ragamMl:'യമുനാകല്യാണി', thalamEn:'Misra Chapu', thalamMl:'മിശ്രചാപ്പ്', composerEn:'Vyasatirtha', composerMl:'വ്യാസതീർത്ഥർ', duration:'8:30',
+     shortEn:'Yashoda lovingly calls the little Krishna to come to her quickly.',
+     shortMl:'ഉണ്ണിക്കണ്ണനെ വേഗം അരികിലേക്ക് വരാൻ യശോദ സ്നേഹത്തോടെ വിളിക്കുന്നു.',
+     longEn:'Yashoda lovingly calls the little Krishna to come to her quickly. The dance pictures his anklets and ornaments, and ends with Yashoda’s wonder when she sees the whole universe in the child’s mouth.',
+     longMl:'ഉണ്ണിക്കണ്ണനെ വേഗം അരികിലേക്ക് വരാൻ യശോദ സ്നേഹത്തോടെ വിളിക്കുന്നു. കണ്ണന്റെ ചിലങ്കയും ആഭരണങ്ങളും വർണ്ണിക്കുന്ന ഈ നൃത്തം, ഉണ്ണിയുടെ വായിൽ പ്രപഞ്ചം മുഴുവൻ കണ്ട് അത്ഭുതപ്പെടുന്ന യശോദയിൽ അവസാനിക്കുന്നു.'},
+    {id:'bhoshambho', typeEn:'Keerthanam', typeMl:'കീർത്തനം', itemEn:'Bho Shambho', itemMl:'ഭോ ശംഭോ', ragamEn:'Revati', ragamMl:'രേവതി', thalamEn:'Adi', thalamMl:'ആദി', composerEn:'Swami Dayananda Saraswati', composerMl:'സ്വാമി ദയാനന്ദ സരസ്വതി', duration:'7:15',
+     shortEn:'A powerful depiction of Lord Shiva as Nataraja, the cosmic dancer.',
+     shortMl:'പ്രപഞ്ചനർത്തകനായ നടരാജരൂപത്തിലുള്ള ശിവഭഗവാന്റെ ശക്തമായ ആവിഷ്കാരം.',
+     longEn:'A powerful depiction of Lord Shiva as Nataraja, the cosmic dancer. It describes his matted locks, the Ganga flowing from them, and the eternal dance that creates and dissolves the universe.',
+     longMl:'പ്രപഞ്ചനർത്തകനായ നടരാജരൂപത്തിലുള്ള ശിവഭഗവാന്റെ ശക്തമായ ആവിഷ്കാരം. ജടയും അതിൽനിന്നൊഴുകുന്ന ഗംഗയും, സൃഷ്ടിയും സംഹാരവും നിർവ്വഹിക്കുന്ന അനന്തമായ താണ്ഡവവും ഇതിൽ വർണ്ണിക്കപ്പെടുന്നു.'},
+    {id:'thillana', typeEn:'Thillana', typeMl:'തില്ലാന', itemEn:'Dhanashree Thillana', itemMl:'ധനശ്രീ തില്ലാന', ragamEn:'Dhanashree', ragamMl:'ധനശ്രീ', thalamEn:'Adi', thalamMl:'ആദി', composerEn:'Swathi Thirunal', composerMl:'സ്വാതി തിരുനാൾ', duration:'6:40',
+     shortEn:'A joyous finale of brisk rhythms, sculpture-like poses and sparkling footwork.',
+     shortMl:'ചടുലമായ താളവും ശില്പസമാനമായ നിലകളും മിന്നുന്ന ചുവടുകളും നിറഞ്ഞ ആഹ്ലാദകരമായ സമാപനനൃത്തം.',
+     longEn:'A joyous finale of brisk rhythms, sculpture-like poses and sparkling footwork. Composed by Maharaja Swathi Thirunal of Travancore, it carries his signature in praise of Lord Padmanabha.',
+     longMl:'ചടുലമായ താളവും ശില്പസമാനമായ നിലകളും മിന്നുന്ന ചുവടുകളും നിറഞ്ഞ ആഹ്ലാദകരമായ സമാപനനൃത്തം. തിരുവിതാംകൂർ മഹാരാജാവായ സ്വാതി തിരുനാളിന്റെ ഈ രചനയിൽ ശ്രീ പത്മനാഭസ്വാമിയെ വാഴ്ത്തുന്ന സാഹിത്യഭാഗവുമുണ്ട്.'},
+    {id:'mangalam', typeEn:'Mangalam', typeMl:'മംഗളം', itemEn:'Mangalam', itemMl:'മംഗളം', ragamEn:'Madhyamavathi', ragamMl:'മധ്യമാവതി', thalamEn:'Adi', thalamMl:'ആദി', composerEn:'', composerMl:'', duration:'2:10',
+     shortEn:'A closing prayer of thanks to the Lord, the Guru, the musicians and the audience.',
+     shortMl:'ഭഗവാനും ഗുരുവിനും വാദ്യക്കാർക്കും സദസ്സിനും നന്ദി അർപ്പിക്കുന്ന സമാപന പ്രാർത്ഥന.',
+     longEn:'A closing prayer of thanks to the Lord, the Guru, the musicians and the audience. It brings the recital to an auspicious close.',
+     longMl:'ഭഗവാനും ഗുരുവിനും വാദ്യക്കാർക്കും സദസ്സിനും നന്ദി അർപ്പിക്കുന്ന സമാപന പ്രാർത്ഥന. അവതരണത്തിന് മംഗളകരമായ സമാപനം കുറിക്കുന്നു.'}
+  ],
+  text: {
+    dancer_name:      {en:'Sreedevi Nair', ml:'ശ്രീദേവി നായർ'},
+    dancer_formal:    {en:'Smt. Sreedevi Nair', ml:'ശ്രീമതി ശ്രീദേവി നായർ'},
+    poster_heading:   {en:'Bharatanatyam Recital', ml:'ഭരതനാട്യം'},
+    badge_save:       {en:'Save the date', ml:'തീയതി ഓർത്തുവെക്കൂ'},
+    badge_today:      {en:'Today', ml:'ഇന്ന്'},
+    co_prefix:        {en:'with', ml:'ഒപ്പം:'},
+    organiser_prefix: {en:'Organised by', ml:'സംഘാടനം:'},
+    label_ragam:      {en:'Ragam', ml:'രാഗം'},
+    label_thalam:     {en:'Thalam', ml:'താളം'},
+    label_composer:   {en:'Composed by', ml:'രചന:'},
+    bio_short: {en:'She trained in Bharatanatyam under Guru Smt. Padmini Raman and has been performing for over four decades.',
+                ml:'ഗുരു ശ്രീമതി പത്മിനി രാമന്റെ കീഴിൽ ഭരതനാട്യം അഭ്യസിച്ച ഇവർ നാല് പതിറ്റാണ്ടിലേറെയായി വേദികളിൽ നൃത്തം അവതരിപ്പിച്ചുവരുന്നു.'},
+    bio_long:  {en:'She began learning Bharatanatyam at the age of seven under Guru Smt. Padmini Raman. Over more than forty years she has performed at temple festivals, sabhas and cultural events across Kerala and beyond. Alongside performing, she has taught many students and remains devoted to keeping the traditional repertoire alive.',
+                ml:'ഏഴാം വയസ്സിൽ ഗുരു ശ്രീമതി പത്മിനി രാമന്റെ കീഴിൽ ഭരതനാട്യം അഭ്യസിച്ചു തുടങ്ങിയ ഇവർ, നാല് പതിറ്റാണ്ടിലേറെയായി കേരളത്തിനകത്തും പുറത്തുമുള്ള ക്ഷേത്രോത്സവങ്ങളിലും സഭകളിലും സാംസ്കാരിക വേദികളിലും നൃത്തം അവതരിപ്പിച്ചുവരുന്നു. ഒട്ടേറെ ശിഷ്യരെ നൃത്തം അഭ്യസിപ്പിക്കുന്ന ഇവർ പരമ്പരാഗത നൃത്തശൈലി നിലനിർത്തുന്നതിൽ ശ്രദ്ധാലുവാണ്.'},
+    intro:  {en:'{greeting}, everyone, and a very warm welcome to {event}.[[ This programme is presented by {organiser}.]][[ We are honoured to have {chief_guest} with us as our Chief Guest.]] This {daypart}, we present a Bharatanatyam recital by {dancer_formal}. {bio}[[ She is joined on stage by {co}.]]',
+             ml:'ഏവർക്കും നമസ്കാരം. {event} വേദിയിലേക്ക് ഏവർക്കും ഹൃദയം നിറഞ്ഞ സ്വാഗതം.[[ ഈ പരിപാടിയുടെ സംഘാടകർ: {organiser}.]][[ ഈ ചടങ്ങിന്റെ മുഖ്യാതിഥിയായ {chief_guest} അവർകൾക്ക് പ്രത്യേക സ്വാഗതം.]] ഇനി {dancer_formal} അവതരിപ്പിക്കുന്ന ഭരതനാട്യം. {bio}[[ ഒപ്പം വേദിയിൽ: {co}.]]'},
+    item_first: {en:'We begin with {title}.', ml:'ആദ്യമായി, {title}.'},
+    item_next:  {en:'The next item is {title}.', ml:'അടുത്തതായി, {title}.'},
+    item_last:  {en:'The final item this {daypart} is {title}.', ml:'അവസാനമായി, {title}.'},
+    thanks: {en:'Before we conclude, we would like to thank everyone who made this {daypart} possible.[[ Our heartfelt thanks to {organiser} for this opportunity.]][[ We thank our Chief Guest, {chief_guest}, for being with us.]] Thanks also to the sound and light team, and to all of you for watching with such warmth. Thank you.',
+             ml:'സമാപനത്തിന് മുമ്പായി, ഈ പരിപാടി സാധ്യമാക്കിയ എല്ലാവർക്കും നന്ദി രേഖപ്പെടുത്തുന്നു.[[ ഈ അവസരം ഒരുക്കിത്തന്ന സംഘാടകർക്ക് ({organiser}) ഹൃദയം നിറഞ്ഞ നന്ദി.]][[ മുഖ്യാതിഥി {chief_guest} അവർകൾക്കും നന്ദി.]] ശബ്ദ-വെളിച്ച സംവിധാനം ഒരുക്കിയവർക്കും, സ്നേഹത്തോടെ കണ്ടിരുന്ന നിങ്ങൾ ഓരോരുത്തർക്കും നന്ദി.'}
+  },
+  photos: []
+};
+
+/* ---------------- helpers ---------------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad2 = n => String(n).padStart(2,'0');
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const store = {
+  get(k){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+function isoPlusDays(n){ const d=new Date(); d.setDate(d.getDate()+n); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
+function secs(dur){ if(!dur) return 0; const p=String(dur).trim().split(':').map(Number); if(p.some(isNaN)) return 0; return p.length===3 ? p[0]*3600+p[1]*60+p[2] : p.length===2 ? p[0]*60+p[1] : p[0]*60; }
+function fmtDur(s){ if(!s) return ''; const h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60; return h ? `${h}:${pad2(m)}:${pad2(x)}` : `${m}:${pad2(x)}`; }
+function fmtLong(s){ const m=Math.round(s/60); if(m<60) return `${m} min`; const h=Math.floor(m/60), r=m%60; return r ? `${h} hr ${r} min` : `${h} hr`; }
+
+const EN_DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const EN_MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const ML_DAYS=['ഞായറാഴ്ച','തിങ്കളാഴ്ച','ചൊവ്വാഴ്ച','ബുധനാഴ്ച','വ്യാഴാഴ്ച','വെള്ളിയാഴ്ച','ശനിയാഴ്ച'];
+const ML_MON=['ജനുവരി','ഫെബ്രുവരി','മാർച്ച്','ഏപ്രിൽ','മേയ്','ജൂൺ','ജൂലൈ','ഓഗസ്റ്റ്','സെപ്റ്റംബർ','ഒക്ടോബർ','നവംബർ','ഡിസംബർ'];
+function parseDate(s){ const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||''); return m ? new Date(+m[1], +m[2]-1, +m[3]) : null; }
+function fmtDate(s, lang){ const d=parseDate(s); if(!d) return '';
+  return lang==='ml' ? `${d.getFullYear()} ${ML_MON[d.getMonth()]} ${d.getDate()}, ${ML_DAYS[d.getDay()]}`
+                     : `${EN_DAYS[d.getDay()]}, ${d.getDate()} ${EN_MON[d.getMonth()]} ${d.getFullYear()}`; }
+function fmtShortDate(s){ const d=parseDate(s); return d ? `${d.getDate()} ${EN_MON[d.getMonth()].slice(0,3)} ${d.getFullYear()}` : ''; }
+function hourOf(t){ const m=/^(\d{1,2}):/.exec(t||''); return m ? +m[1] : 18; }
+function fmtTime(t, lang){ const m=/^(\d{1,2}):(\d{2})/.exec(t||''); if(!m) return ''; const h=+m[1], mm=m[2], h12=((h+11)%12)+1;
+  if(lang==='ml'){ const p = h<12?'രാവിലെ' : h<16?'ഉച്ചയ്ക്ക്' : h<19?'വൈകുന്നേരം' : 'രാത്രി'; return `${p} ${h12}:${mm}`; }
+  return `${h12}:${mm} ${h<12?'AM':'PM'}`; }
+
+/* fill a template: {key} placeholders; [[ ... ]] parts are dropped when any placeholder inside is empty */
+function fill(tpl, v){
+  if(!tpl) return '';
+  let s = String(tpl).replace(/\[\[([\s\S]*?)\]\]/g, (m, inner) => {
+    const keys = [...inner.matchAll(/\{(\w+)\}/g)].map(x=>x[1]);
+    return keys.every(k => v[k] && String(v[k]).trim()) ? inner : '';
+  });
+  s = s.replace(/\{(\w+)\}/g, (m,k) => v[k]!=null ? v[k] : '');
+  return s.replace(/[ \t]{2,}/g,' ').replace(/[ \t]+([.,])/g,'$1').trim();
+}
+
+/* ---------------- state ---------------- */
+let DATA = LIVE ? null : SAMPLE;
+const DRAFT = 'program-kit-draft-v1';
+const blankProgram = () => ({date:'', time:'18:30', eventEn:'', eventMl:'', venueEn:'', venueMl:'', orgEn:'', orgMl:'', guestEn:'', guestMl:'', coEn:'', coMl:''});
+const sampleProgram = () => ({date:isoPlusDays(13), time:'18:30',
+  eventEn:'Annual Arts Festival 2026', eventMl:'വാർഷിക കലോത്സവം 2026',
+  venueEn:'Sree Krishna Temple Auditorium, Thrissur', venueMl:'ശ്രീകൃഷ്ണ ക്ഷേത്രം ഓഡിറ്റോറിയം, തൃശ്ശൂർ',
+  orgEn:'Thrissur Kala Samithi', orgMl:'തൃശ്ശൂർ കലാസമിതി',
+  guestEn:'Sri. M. Gopinathan', guestMl:'ശ്രീ. എം. ഗോപിനാഥൻ', coEn:'', coMl:''});
+const state = {
+  step:1, tab:'music',
+  program: LIVE ? blankProgram() : sampleProgram(),
+  items: LIVE ? [] : ['pushpanjali','ganesha','varnam','krishna','thillana'].map(id=>({id, len:'short'})),
+  scriptLang:'both', bioLen:'short',
+  pLang:'en', pStyle:'minimal', photoId:null, adjust:{},
+  edits:{}, editsSig:'', folder:null, music:null, clearArm:false
+};
+(function loadDraft(){
+  const d = store.get(DRAFT); if(!d) return;
+  ['step','tab','program','items','scriptLang','bioLen','pLang','pStyle','photoId','adjust','edits','editsSig','folder'].forEach(k=>{ if(d[k]!==undefined) state[k]=d[k]; });
+  state.program = Object.assign(blankProgram(), state.program||{});
+})();
+function save(){ const {music, clearArm, saving, ...rest} = state; store.set(DRAFT, rest); }
+
+const rep = id => (DATA && DATA.repertoire.find(r=>r.id===id)) || null;
+const tx = (key, lang) => { const t = DATA && DATA.text[key]; if(!t) return ''; return (lang==='ml' ? (t.ml||t.en) : (t.en||t.ml)) || ''; };
+function pick(f, lang){ const P=state.program; const en=(P[f+'En']||'').trim(), ml=(P[f+'Ml']||'').trim(); return lang==='ml' ? (ml||en) : (en||ml); }
+function title(r, lang){ if(!r) return ''; const ml = lang==='ml';
+  const type = (ml ? (r.typeMl||r.typeEn) : r.typeEn) || '', item = (ml ? (r.itemMl||r.itemEn) : r.itemEn) || '';
+  if(!type) return item; if(!item) return type;
+  return item.toLowerCase().includes(type.toLowerCase()) ? item : `${type} — ${item}`; }
+function metaLine(r){ return [r.ragamEn, r.thalamEn, r.duration].filter(Boolean).join(' · '); }
+function validItems(){ return state.items.filter(it => rep(it.id)); }
+
+/* ---------------- toast & clipboard ---------------- */
+let toastT;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true, 2600); }
+async function copyText(text){
+  try{ await navigator.clipboard.writeText(text); toast('Copied. Paste it anywhere.'); return; }catch(e){}
+  const ta=document.createElement('textarea'); ta.value=text; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select();
+  let ok=false; try{ ok=document.execCommand('copy'); }catch(e){} ta.remove();
+  toast(ok ? 'Copied. Paste it anywhere.' : 'Copy did not work here. Press and hold the text to copy it.');
+}
+const waHref = text => 'https://wa.me/?text=' + encodeURIComponent(text);
+let dlP = null;
+function getDownloads(){ if(dlP) return dlP; dlP = (window.claude && typeof window.claude.use==='function') ? window.claude.use('downloads').catch(()=>null) : Promise.resolve(null); return dlP; }
+async function shareFile(blob, filename, fallbackMsg){
+  const file = new File([blob], filename, {type: blob.type});
+  if(navigator.canShare && navigator.share){ try{ if(navigator.canShare({files:[file]})){ await navigator.share({files:[file]}); return true; } }catch(e){ if(e && e.name==='AbortError') return true; } }
+  const dl = await getDownloads();
+  if(dl){ try{ await dl.save({filename, data: blob}); return true; }catch(e){ if(e && e.code==='declined') return true; } }
+  if(fallbackMsg) toast(fallbackMsg);
+  return false;
+}
+
+/* ---------------- API (real version) ---------------- */
+async function api(action, params, body){
+  const q = new URLSearchParams(Object.assign({action, k:KEY}, params||{}));
+  const res = body ? await fetch(CONFIG.API_URL, {method:'POST', body: JSON.stringify(Object.assign({action, k:KEY}, body))})
+                   : await fetch(CONFIG.API_URL + '?' + q.toString());
+  const j = await res.json();
+  if(!j.ok) throw new Error(j.error || 'Something went wrong');
+  return j;
+}
+
+/* ================================================================
+   RENDER
+   ================================================================ */
+const ICON = {
+  up:'<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M6 15l6-6 6 6"/></svg>',
+  down:'<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>',
+  x:'<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>',
+  plus:'<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>',
+  wa:'<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1-1.4-.7-2.4-1.3-3.3-2.9-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2s.8 2.3 1 2.5c.1.2 1.6 2.5 4 3.5 1.5.6 2 .7 2.8.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.1Z"/></svg>',
+  copy:'<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  save:'<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>',
+  folder:'<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg>',
+  usb:'<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M8 2h8v6H8zM6 8h12v9a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5V8Z"/></svg>',
+  phone:'<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  link:'<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+  share:'<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M12 3v12M7.5 7.5 12 3l4.5 4.5M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>',
+  cam:'<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>'
+};
+
+function render(){
+  document.querySelectorAll('.steps button').forEach(b => { if(+b.dataset.step===state.step) b.setAttribute('aria-current','step'); else b.removeAttribute('aria-current'); });
+  const chip=$('#modeChip'); chip.textContent = LIVE ? 'Connected' : 'Sample data'; chip.classList.toggle('live', LIVE);
+  if(!DATA){ $('#main').innerHTML = loadingHTML(); $('#bar').hidden = true; return; }
+  const m = $('#main');
+  state.step = clamp(+state.step||1, 1, 4);
+  if(state.step===1) m.innerHTML = step1();
+  else if(state.step===2) m.innerHTML = step2();
+  else if(state.step===3) m.innerHTML = step3();
+  else m.innerHTML = step4();
+  renderBar();
+  if(state.step===1) applySearch();
+  afterRender();
+  document.documentElement.style.setProperty('--hdr', $('#top').offsetHeight + 'px');
+}
+function loadingHTML(){
+  if(loadError) return `<div class="stack"><div class="lead"><h1>Could not load her songs</h1><p class="muted">${esc(loadError)}</p></div><button class="btn block" data-act="retry">Try again</button></div>`;
+  return `<div class="lead"><h1>Loading…</h1><p class="muted">Getting her songs and photos from Google Drive.</p></div>`;
+}
+function renderBar(){
+  const row=$('#barRow'), bar=$('#bar');
+  bar.hidden = false;
+  if(state.step===1){ const n=validItems().length;
+    row.className='btn-row one'; row.innerHTML = `<button class="btn block" data-act="go" data-step="2" ${n?'':'disabled'}>Next: program details</button>`; }
+  else if(state.step===2){ row.className='btn-row'; row.innerHTML = `<button class="btn secondary" data-act="go" data-step="1">Back</button><button class="btn" data-act="go" data-step="3">Next: posters</button>`; }
+  else if(state.step===3){ row.className='btn-row'; row.innerHTML = `<button class="btn secondary" data-act="go" data-step="2">Back</button><button class="btn" data-act="go" data-step="4">Review</button>`; }
+  else { row.className='btn-row save-row'; row.innerHTML = `<button class="btn secondary" data-act="go" data-step="3">Back</button><button class="btn" id="saveBtn" data-act="saveall" ${state.saving?'disabled':''}>${ICON.folder} ${state.saving?'Saving…':'Save all to Google Drive'}</button>`; }
+}
+
+/* ---------- step 1: items ---------- */
+function step1(){
+  const sel = validItems();
+  const total = sel.reduce((s,it)=>s+secs(rep(it.id).duration),0);
+  const chosen = new Set(sel.map(i=>i.id));
+  const list = sel.length ? `<div class="prog">${sel.map((it,i)=>{ const r=rep(it.id); return `
+    <div class="pi" data-id="${esc(it.id)}">
+      <div class="num">${i+1}</div>
+      <div class="pi-main"><div class="pi-title">${esc(title(r,'en'))}</div><div class="pi-meta">${esc(metaLine(r))}</div></div>
+      <div class="pi-ctrl">
+        <button class="icon-btn" data-act="up" data-i="${i}" aria-label="Move ${esc(r.itemEn)} up" ${i===0?'disabled':''}>${ICON.up}</button>
+        <button class="icon-btn" data-act="down" data-i="${i}" aria-label="Move ${esc(r.itemEn)} down" ${i===sel.length-1?'disabled':''}>${ICON.down}</button>
+        <button class="icon-btn" data-act="remove" data-i="${i}" aria-label="Remove ${esc(r.itemEn)}">${ICON.x}</button>
+      </div>
+    </div>`; }).join('')}</div>
+    <div class="total"><span>${sel.length} item${sel.length>1?'s':''}</span><span>Music: <b>${fmtLong(total)}</b></span></div>`
+    : `<div class="empty">No items yet. Tap <b>Add</b> on the items below.</div>`;
+  const rest = DATA.repertoire.filter(r=>!chosen.has(r.id));
+  return `<div class="stack">
+    <div class="lead"><h1>Item List</h1></div>
+    ${list}
+    <h2>Add items</h2>
+    ${rest.length ? `<div class="search"><div class="search-in">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <input id="q" type="search" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Search, e.g. Thillana or Bhairavi" aria-label="Search items" value="${esc(state.q||'')}">
+        <button class="clr" data-act="clearq" aria-label="Clear search" ${state.q?'':'hidden'}>${ICON.x}</button>
+      </div><div class="count" id="qCount" aria-live="polite"></div></div>
+      <div class="rep" id="repList">${rest.map(r=>`
+      <button class="rr" data-act="add" data-id="${esc(r.id)}" data-k="${esc(searchKey(r))}">
+        <span class="rr-main"><span class="rr-type">${esc(r.typeEn)}</span><span class="rr-title">${esc(r.itemEn)}</span><span class="rr-meta">${esc([r.ragamEn, r.thalamEn, r.duration].filter(Boolean).join(' · '))}</span></span>
+        <span class="rr-add">${ICON.plus} Add</span>
+      </button>`).join('')}</div>
+      <div class="empty" id="noMatch" hidden>No item matches that. Try fewer letters, for example <b>thil</b> or <b>varnam</b>.</div>` : `<p class="muted">All items are in the program.</p>`}
+  </div>`;
+}
+/* re-render the item list with a slide animation: every card glides from its old place to its new one,
+   and the card that was moved (or added) is highlighted for a moment */
+let movedTimer;
+function flipRender(focusId){
+  const before = {};
+  document.querySelectorAll('.pi[data-id]').forEach(el => before[el.dataset.id] = el.getBoundingClientRect().top);
+  render();
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.pi[data-id]').forEach(el => {
+    const id = el.dataset.id, old = before[id];
+    if(id === focusId){ el.classList.add(old==null ? 'appear' : 'moved'); clearTimeout(movedTimer); movedTimer = setTimeout(()=>{ const m=document.querySelector('.pi.moved, .pi.appear'); if(m) m.classList.remove('moved','appear'); }, 1400); }
+    if(reduce || old==null) return;
+    const dy = old - el.getBoundingClientRect().top; if(Math.abs(dy) < 1) return;
+    el.style.transition = 'none'; el.style.transform = `translateY(${dy}px)`;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{ el.style.transition = 'transform .45s cubic-bezier(.2,.7,.2,1), background-color .5s ease, box-shadow .5s ease'; el.style.transform = ''; }));
+  });
+}
+/* search: spelling-tolerant (Thillana = Tillana, Vathapi = Watapi), works on English and Malayalam names, type and ragam */
+function norm(s){
+  return String(s||'').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-z0-9ഀ-ൿ]+/g,'')
+    .replace(/w/g,'v').replace(/([tdkgcbpj])h/g,'$1').replace(/sh/g,'s').replace(/zh/g,'l').replace(/ee/g,'i').replace(/oo/g,'u').replace(/(.)\1+/g,'$1');
+}
+function searchKey(r){ return norm([r.itemEn, r.itemMl, r.typeEn, r.typeMl, r.ragamEn, r.ragamMl, r.composerEn].join(' ')); }
+function applySearch(){
+  const list=$('#repList'); if(!list || !list.querySelectorAll) return;
+  const words=String(state.q||'').trim().split(/\s+/).map(norm).filter(Boolean);
+  let shown=0; const rows=list.querySelectorAll('.rr');
+  rows.forEach(b=>{ const ok = words.every(w=>b.dataset.k.includes(w)); b.hidden=!ok; if(ok) shown++; });
+  list.hidden = shown===0; const nm=$('#noMatch'); if(nm) nm.hidden = shown!==0;
+  const c=$('#qCount'); if(c) c.textContent = words.length ? `${shown} of ${rows.length} items` : `${rows.length} items to choose from`;
+  const clr=document.querySelector('.search .clr'); if(clr) clr.hidden = !state.q;
+}
+
+/* ---------- step 2: details ---------- */
+const FIELDS = [
+  {f:'event', label:'Event name', en:'e.g. Navaratri Festival 2026', ml:'ഉദാ: നവരാത്രി ഉത്സവം 2026'},
+  {f:'venue', label:'Venue', en:'e.g. Town Hall, Thrissur', ml:'ഉദാ: ടൗൺ ഹാൾ, തൃശ്ശൂർ'},
+  {f:'org', label:'Organised by', en:'Name of the organisers', ml:'സംഘാടകരുടെ പേര്'},
+  {f:'guest', label:'Chief guest', opt:true, en:'Leave empty if none', ml:'ഇല്ലെങ്കിൽ ഒഴിച്ചിടുക'},
+  {f:'co', label:'Also dancing with her', opt:true, en:'Leave empty if dancing alone', ml:'ഒറ്റയ്ക്കാണെങ്കിൽ ഒഴിച്ചിടുക'}
+];
+function step2(){
+  const P = state.program;
+  return `<div class="stack">
+    <div class="lead"><h1>Program details</h1></div>
+    <div class="two">
+      <div class="field"><label for="f-date">Date</label><div class="inp plain"><input id="f-date" type="date" data-field="date" value="${esc(P.date)}"></div></div>
+      <div class="field"><label for="f-time">Time</label><div class="inp plain"><input id="f-time" type="time" data-field="time" value="${esc(P.time)}"></div></div>
+    </div>
+    ${FIELDS.map(x=>`
+      <div class="field">
+        <span class="flabel">${x.label}${x.opt?' <span class="opt">(optional)</span>':''}</span>
+        <div class="inp"><span class="tag">ENG</span><input id="f-${x.f}En" data-field="${x.f}En" value="${esc(P[x.f+'En'])}" placeholder="${esc(x.en)}" aria-label="${x.label} in English" autocomplete="off"></div>
+        <div class="inp"><span class="tag">മല</span><input id="f-${x.f}Ml" class="ml" data-field="${x.f}Ml" value="${esc(P[x.f+'Ml'])}" placeholder="${esc(x.ml)}" aria-label="${x.label} in Malayalam" autocomplete="off" lang="ml"></div>
+      </div>`).join('')}  </div>`;
+}
+
+/* ---------- step 3: posters ---------- */
+function step3(){
+  return `<div class="stack">
+    <div class="lead"><h1>Posters</h1><p class="muted">Pick the language, style and photo. Tap a poster to see it large and move the photo.</p></div>
+    ${postersPanel()}
+  </div>`;
+}
+
+/* ---------- step 4: review ---------- */
+function missingList(){ const P=state.program, m=[]; if(!validItems().length) m.push('items'); if(!P.date) m.push('date'); if(!pick('event','en')) m.push('event name'); if(!pick('venue','en')) m.push('venue'); return m; }
+function pageLabel(s){ return s.kind==='intro' ? 'Introduction' : s.kind==='thanks' ? 'Thank you' : `Item ${s.idx+1}`; }
+function step4(){
+  ensureEditsSig();
+  const P = state.program, files = fileNames(), total = files.reduce((s,f)=>s+f.dur,0), est = total + files.length*60 + 8*60;
+  const secs = buildSections(), missing = missingList();
+  return `<div class="stack">
+    <div class="lead"><h1>Review</h1><p class="muted">Check the music, posters and script. When everything looks right, tap <b>Save all to Google Drive</b>.</p></div>
+    <div class="summary">
+      <div class="ev">${esc(pick('event','en') || 'Untitled program')}</div>
+      <div class="sm">${esc([fmtShortDate(P.date), fmtTime(P.time,'en')].filter(Boolean).join(' · '))}${pick('venue','en') ? ' · ' + esc(pick('venue','en')) : ''}</div>
+    </div>
+    ${missing.length ? `<div class="warn">Still missing: ${esc(missing.join(', '))}. You can still save, but these will be blank.</div>` : ''}
+    <div id="saveSlot">${state.saving ? savingCard(state.saving) : state.folder ? savedCard(state.folder) : ''}</div>
+
+    <section class="card" aria-labelledby="h-music">
+      <div class="card-h"><h2 id="h-music">Music</h2><button class="link" data-act="go" data-step="1">Change</button></div>
+      <div class="files">${files.map(f=>`<div class="file"><span class="fn">${esc(f.name)}</span><span class="du">${fmtDur(f.dur)}</span></div>`).join('') || '<p class="muted">No items chosen.</p>'}</div>
+      <div class="total"><span>Total music <b>${fmtLong(total)}</b></span></div>
+    </section>
+
+    <section class="card" aria-labelledby="h-posters">
+      <div class="card-h"><h2 id="h-posters">Posters</h2><button class="link" data-act="go" data-step="3">Change</button></div>
+      <div class="seg" role="group" aria-label="Poster language">
+        <button data-act="plang" data-v="en" aria-pressed="${state.pLang==='en'}">English</button>
+        <button data-act="plang" data-v="ml" aria-pressed="${state.pLang==='ml'}" class="ml">മലയാളം</button>
+      </div>
+      ${STAGES.map(s=>`
+      <div class="stage">
+        <div class="stage-h"><b>${s.label}</b><span>${s.when}</span></div>
+        <div class="thumbs">
+          ${thumbHTML(s,'sq')}${thumbHTML(s,'story')}
+        </div>
+      </div>`).join('')}    </section>
+
+    <section class="card" aria-labelledby="h-script">
+      <div class="card-h"><h2 id="h-script">Announcement script</h2></div>
+      <div class="seg" role="group" aria-label="Script language">
+        <button data-act="slang" data-v="both" aria-pressed="${state.scriptLang==='both'}">Both</button>
+        <button data-act="slang" data-v="ml" aria-pressed="${state.scriptLang==='ml'}" class="ml">മലയാളം</button>
+        <button data-act="slang" data-v="en" aria-pressed="${state.scriptLang==='en'}">English</button>
+      </div>
+      <div class="sgrid">${secs.map((s,i)=>`
+        <button class="sthumb" data-act="page" data-i="${i}" aria-label="Page ${i+1}: ${esc(pageLabel(s))}"><canvas data-page="${i}"></canvas><span class="cap">${i+1} · ${esc(pageLabel(s))}</span>${s.parts.some(p=>p.edited) ? '<span class="chg">changed</span>' : ''}</button>`).join('')}
+      </div>      <div class="btn-row">
+        <a class="btn wa sm" data-act="wa-script" href="#" target="_blank" rel="noopener">${ICON.wa} WhatsApp text</a>
+        <button class="btn secondary sm" data-act="pdf">${ICON.save} Download PDF</button>
+      </div>
+    </section>
+  </div>`;
+}
+function savingCard(S){ return `<div class="card"><b>Saving to Google Drive…</b><div class="progress"><i style="width:${Math.round(S.pct)}%"></i></div><p class="hint">${esc(S.msg||'')}</p></div>`; }
+function savedCard(F){
+  const files = fileNames();
+  const msg = `${pick('event','en') || 'Program'}${state.program.date ? ' — ' + fmtShortDate(state.program.date) : ''}\nMusic (in order), posters and announcement script:\n${F.url}\n\n` + files.map(f=>f.name).join('\n');
+  return `<div class="card">
+    <div class="okbox"><b>Saved to Google Drive:</b> ${esc(F.name)}${F.summary ? '<br>' + esc(F.summary) : ''}${F.demo ? '<br><span style="opacity:.8">Sample only. The real version saves to a real Google Drive folder.</span>' : ''}</div>
+    <div class="linkbox">${esc(F.url)}</div>
+    <div class="btn-row">
+      <a class="btn wa" data-act="wa-folder" href="${esc(waHref(msg))}" target="_blank" rel="noopener">${ICON.wa} WhatsApp</a>
+      <button class="btn secondary" data-act="copy-folder">${ICON.copy} Copy link</button>
+    </div>
+    ${F.demo ? '' : `<a class="btn outline block" href="${esc(F.url)}" target="_blank" rel="noopener">${ICON.folder} Open the folder</a>`}
+  </div>`;
+}
+function afterRender(){
+  if(state.step===3 || state.step===4) drawThumbs();
+  if(state.step===4) drawPageThumbs();
+}
+
+/* ---------- music + saving everything to Drive ---------- */
+function fileNames(){ return validItems().map((it,i)=>{ const r=rep(it.id); return {name:`${pad2(i+1)} - ${title(r,'en').replace(/\s*—\s*/g,' - ').replace(/[\\/:*?"<>|]/g,'')}.mp3`, dur:secs(r.duration)}; }); }
+function folderName(){ return `${state.program.date || 'no-date'} ${pick('event','en') || 'Program'}`.replace(/[\\/:*?"<>|]/g,'').trim(); }
+function programPayload(){ return {date: state.program.date, event: pick('event','en'), venue: pick('venue','en'), items: validItems().map(it=>it.id)}; }
+function setSaving(s){
+  state.saving = s;
+  const slot=$('#saveSlot'); if(slot && s) slot.innerHTML = savingCard(s);
+  const bt=$('#saveBtn'); if(bt){ bt.disabled = !!s; bt.textContent = s ? 'Saving…' : 'Save all to Google Drive'; }
+}
+function blobToB64(blob){ return new Promise((res,rej)=>{ const fr=new FileReader(); fr.onload=()=>res(String(fr.result).split(',')[1]||''); fr.onerror=()=>rej(fr.error); fr.readAsDataURL(blob); }); }
+function posterBlob(stage, size, lang){
+  const keep = state.pLang; state.pLang = lang;
+  const cv = document.createElement('canvas');
+  try{ renderPoster(cv, stage, size, 1); } finally { state.pLang = keep; }
+  return new Promise(r=>cv.toBlob(r,'image/jpeg',.92));
+}
+function posterFileName(stage, size, lang){ const st=STAGES.find(s=>s.id===stage).label; return `Poster - ${st} - ${size==='sq'?'Post':'Story'} - ${lang==='ml'?'Malayalam':'English'}.jpg`; }
+async function saveAll(){
+  if(state.saving) return;
+  const files = fileNames(); if(!files.length){ toast('Add at least one item first'); return; }
+  const posters = []; ['en','ml'].forEach(l=>STAGES.forEach(s=>['sq','story'].forEach(z=>posters.push({stage:s.id, size:z, lang:l}))));
+  const steps = posters.length + 2; let done = 0;
+  const tick = msg => { done++; setSaving({pct: 5 + 95*done/steps, msg}); };
+  state.folder = null; const slot=$('#saveSlot'); if(slot) slot.scrollIntoView({behavior:'smooth', block:'center'});
+  setSaving({pct:3, msg:'Starting…'});
+  try{
+    await ensureFonts(); const p=activePhoto(); if(p) await ensurePhotoImg(p);
+    let folder;
+    if(LIVE){
+      setSaving({pct:5, msg:`Copying ${files.length} songs. Long songs can take a minute.`});
+      const j = await api('music', null, {program: programPayload()});
+      folder = {name:j.folderName, url:j.folderUrl, id:j.folderId, skipped:j.skipped||[]};
+    } else {
+      await new Promise(r=>setTimeout(r, 900));
+      folder = {name: folderName(), url:'https://drive.google.com/drive/folders/SAMPLE-FOLDER-LINK', demo:true, skipped:[]};
+    }
+    tick(`Saved ${files.length} songs`);
+    for(const ps of posters){
+      const name = posterFileName(ps.stage, ps.size, ps.lang), blob = await posterBlob(ps.stage, ps.size, ps.lang);
+      if(LIVE) await api('upload', null, {program: programPayload(), name, mime:'image/jpeg', data: await blobToB64(blob)});
+      else await new Promise(r=>setTimeout(r, 150));
+      tick('Saved ' + name.replace(/\.jpg$/,''));
+    }
+    const pdf = await buildScriptPdf();
+    if(LIVE) await api('upload', null, {program: programPayload(), name:'Announcement script.pdf', mime:'application/pdf', data: await blobToB64(pdf)});
+    else await new Promise(r=>setTimeout(r, 300));
+    tick('Saved the script PDF');
+    folder.summary = `${files.length} songs, ${posters.length} posters and the announcement script PDF.` + (folder.skipped.length ? ` Songs not found: ${folder.skipped.join(', ')}.` : '');
+    state.folder = folder; state.saving = null; save(); render();
+    const s2=$('#saveSlot'); if(s2) s2.scrollIntoView({behavior:'smooth', block:'center'});
+    toast(folder.demo ? 'Saved (sample)' : 'Everything is saved to Google Drive');
+  }catch(e){ state.saving = null; render(); toast('Could not save everything: ' + (e && e.message || e)); }
+}
+function rerenderPanel(){ render(); }
+
+/* ---------- script ---------- */
+function vars(lang){
+  const P=state.program, h=hourOf(P.time);
+  const v = {
+    greeting: h<12 ? 'Good morning' : h<16 ? 'Good afternoon' : 'Good evening',
+    daypart: h<12 ? 'morning' : h<16 ? 'afternoon' : 'evening',
+    event: pick('event',lang), venue: pick('venue',lang), organiser: pick('org',lang), chief_guest: pick('guest',lang), co: pick('co',lang),
+    dancer: tx('dancer_name',lang), dancer_formal: tx('dancer_formal',lang) || tx('dancer_name',lang),
+    date: fmtDate(P.date,lang), time: fmtTime(P.time,lang)
+  };
+  v.bio = fill(tx(state.bioLen==='long' ? 'bio_long' : 'bio_short', lang), v);
+  return v;
+}
+function details(r, lang){
+  const ml = lang==='ml', g = k => ml ? (r[k+'Ml']||r[k+'En']) : r[k+'En'];
+  const parts = []; if(g('ragam')) parts.push(`${tx('label_ragam',lang)} ${g('ragam')}`); if(g('thalam')) parts.push(`${tx('label_thalam',lang)} ${g('thalam')}`);
+  let s = parts.length ? parts.join(', ') + '.' : '';
+  if(g('composer')) s += (s?' ':'') + `${tx('label_composer',lang)} ${g('composer')}.`;
+  return s;
+}
+function itemText(r, lang, key, len){
+  const ml = lang==='ml';
+  let s = fill(tx(key,lang), Object.assign(vars(lang), {title: title(r,lang)}));
+  const d = details(r,lang); if(d) s += ' ' + d;
+  const pickDesc = k => ml ? (r[k+'Ml']||r[k+'En']) : r[k+'En'];
+  const desc = len==='long' ? (pickDesc('long') || pickDesc('short')) : pickDesc('short');
+  if(desc) s += ' ' + desc;
+  return s;
+}
+function sig(){ return JSON.stringify([state.program, state.items, state.scriptLang]); }
+function buildSections(){
+  const langs = state.scriptLang==='both' ? ['ml','en'] : [state.scriptLang];
+  const sel = validItems(), n = sel.length, secs = [];
+  secs.push({id:'intro', kind:'intro', heading:'Welcome & introduction', len:state.bioLen, parts: langs.map(l=>({lang:l, text: fill(tx('intro',l), vars(l))}))});
+  const items = sel.map((it,i)=>{ const r=rep(it.id); const key = i===0 ? 'item_first' : (i===n-1 && n>1) ? 'item_last' : 'item_next';
+    return {id:'item-'+it.id, kind:'item', idx:i, total:n, titleEn:title(r,'en'), titleMl:title(r,'ml'), heading:`${i+1}. ${title(r,'en')}`, len:it.len||'short', parts: langs.map(l=>({lang:l, text:itemText(r,l,key,it.len)}))}; });
+  /* thanks is read before the second-last item (at the end when there is only one item) */
+  const thanks = {id:'thanks', kind:'thanks', heading:'Thank you', parts: langs.map(l=>({lang:l, text: fill(tx('thanks',l), vars(l))}))};
+  const at = n<=1 ? n : n-2;
+  items.splice(at, 0, thanks);
+  if(n>=2) thanks.note = `Read this before item ${n-1}: ${items[at+1].titleEn}`;
+  secs.push(...items);
+  secs.forEach(s=>s.parts.forEach(p=>{ const k=s.id+'|'+p.lang; if(state.edits[k]!=null){ p.text=state.edits[k]; p.edited=true; } }));
+  return secs;
+}
+function scriptText(){
+  const P=state.program;
+  const head = `${pick('event','en') || 'Program'}${P.date ? ' — ' + fmtShortDate(P.date) : ''}\nAnnouncement script\n`;
+  return head + '\n' + buildSections().map(s => `*${s.heading}*${s.note ? ' (' + s.note + ')' : ''}\n` + s.parts.map(p=>p.text).join('\n\n')).join('\n\n');
+}
+function ensureEditsSig(){ if(state.editsSig !== sig()){ state.edits = {}; state.editsSig = sig(); save(); } }
+let pageTok = 0;
+async function drawPageThumbs(){
+  const my = ++pageTok; await ensureFonts(); if(my!==pageTok) return;
+  const secs = buildSections();
+  document.querySelectorAll('canvas[data-page]').forEach(cv=>{ const i=+cv.dataset.page, s=secs[i]; if(!s) return;
+    const full = renderScriptPage(s,i,secs); cv.width=310; cv.height=Math.round(310*full.height/full.width); cv.getContext('2d').drawImage(full,0,0,cv.width,cv.height); });
+}
+/* page viewer: read one script page large and change its words */
+const PV = {i:0, t:null};
+function pageOpen(){ return !$('#pviewer').hidden; }
+function openPage(i){ PV.i=i; $('#pviewer').hidden=false; document.body.style.overflow='hidden'; drawPage(true); }
+async function drawPage(withEditors){
+  await ensureFonts();
+  const secs = buildSections(); PV.i = clamp(PV.i, 0, secs.length-1); const s = secs[PV.i];
+  $('#pTitle').textContent = `Page ${PV.i+1} of ${secs.length} · ${pageLabel(s)}`;
+  $('#pImg').src = renderScriptPage(s, PV.i, secs).toDataURL('image/jpeg', .9);
+  $('#pPrev').disabled = PV.i===0; $('#pNext').disabled = PV.i===secs.length-1;
+  if(!withEditors) return;
+  const lenSeg = (act, i, val) => `<div class="seg sm" role="group" aria-label="How much to say"><button data-act="${act}" data-i="${i}" data-v="short" aria-pressed="${val!=='long'}">Short</button><button data-act="${act}" data-i="${i}" data-v="long" aria-pressed="${val==='long'}">Long</button></div>`;
+  $('#pEdit').innerHTML = `
+    <div class="sec-h"><h3>${esc(s.heading)}</h3>${s.kind==='intro' ? lenSeg('biolen',0,state.bioLen) : s.kind==='item' ? lenSeg('len',s.idx,s.len) : ''}</div>
+    ${s.note ? `<p class="hint"><b>${esc(s.note)}</b></p>` : ''}
+    <p class="hint">Change the words below. The page above updates as you type.</p>
+    ${s.parts.map(p=>`<div class="part"><span class="pl">${p.lang==='ml'?'Malayalam':'English'} ${p.edited?'<span class="edited">· changed</span>':''}</span>
+      <textarea data-edit="${esc(s.id+'|'+p.lang)}" class="${p.lang==='ml'?'ml':''}" lang="${p.lang==='ml'?'ml':'en'}" rows="3" aria-label="${esc(s.heading)} in ${p.lang==='ml'?'Malayalam':'English'}">${esc(p.text)}</textarea></div>`).join('')}
+    ${s.parts.some(p=>p.edited) ? `<button class="link" data-act="pundo">Undo my changes on this page</button>` : ''}`;
+  document.querySelectorAll('#pEdit textarea').forEach(autosize);
+}
+function closePage(){ $('#pviewer').hidden=true; document.body.style.overflow=''; save(); if(state.step===4) render(); }
+function refreshScript(){ if(pageOpen()) drawPage(true); else render(); }
+/* ---------- script PDF: rendered page by page on canvas so Malayalam is shaped correctly ---------- */
+function renderScriptPage(s, i, secs){
+  const W=1240, H=1754, M=110, c=document.createElement('canvas'); c.width=W; c.height=H;
+  const g=c.getContext('2d'); g.fillStyle='#FFFFFF'; g.fillRect(0,0,W,H); g.textBaseline='top';
+  const INK='#1E1416', MUTED='#6C5A5F', ACC='#8A1B2C', LINE='#E5DAD7';
+  const EN=w=>sz=>`${w} ${sz}px Inter, Arial, sans-serif`, ML=w=>sz=>`${w} ${sz}px "Noto Sans Malayalam", Manjari, sans-serif`;
+  const P=state.program, maxW=W-2*M;
+  const line1=(text,font,size,min,x,y,color,align,w)=>{ const f=fitText(g,text,font,size,min,w||maxW,1,0); g.font=font(f.s); g.fillStyle=color; drawSp(g,f.lines[0]||'',x,y,0,align); };
+  // header
+  g.textAlign='left'; line1(`${pick('event','en')||'Program'}${P.date ? '  ·  ' + fmtShortDate(P.date) : ''}`, EN(500), 26, 20, M, 62, MUTED, 'left', maxW-240);
+  g.font=EN(600)(26); g.fillStyle=MUTED; g.textAlign='right'; g.fillText(`Page ${i+1} of ${secs.length}`, W-M, 62);
+  g.fillStyle=LINE; g.fillRect(M,108,maxW,2);
+  let y=150;
+  if(s.kind==='item'){
+    const r=100, cx=M+r, cy=y+r;
+    g.fillStyle=ACC; g.beginPath(); g.arc(cx,cy,r,0,Math.PI*2); g.fill();
+    g.fillStyle='#FFFFFF'; g.font=EN(700)(s.idx+1>9 ? 104 : 136); g.textAlign='center'; g.textBaseline='middle'; g.fillText(String(s.idx+1), cx, cy+6); g.textBaseline='top';
+    const x0=M+2*r+44, tw=W-M-x0;
+    g.font=EN(700)(30); g.fillStyle=ACC; drawSp(g, `ITEM ${s.idx+1} OF ${s.total}`, x0, y+6, 4, 'left');
+    let ty=y+56; const f1=fitText(g,s.titleEn,EN(700),54,34,tw,2,0); g.font=EN(700)(f1.s); g.fillStyle=INK; f1.lines.forEach(l=>{ drawSp(g,l,x0,ty,0,'left'); ty+=f1.s*1.2; });
+    if(s.titleMl && s.titleMl!==s.titleEn){ const f2=fitText(g,s.titleMl,ML(600),40,28,tw,2,0); g.font=ML(600)(f2.s); g.fillStyle=MUTED; ty+=6; f2.lines.forEach(l=>{ drawSp(g,l,x0,ty,0,'left'); ty+=f2.s*1.55; }); }
+    y = Math.max(cy+r, ty) + 56;
+  } else {
+    g.font=EN(700)(30); g.fillStyle=ACC; drawSp(g, s.kind==='intro' ? 'READ FIRST' : 'THANK-YOU', M, y, 4, 'left');
+    line1(s.heading, EN(700), 66, 40, M, y+48, INK, 'left'); y += 48+66+36;
+    if(s.note){ rr(g,M,y,maxW,84,16); g.fillStyle='#FBEFD9'; g.fill(); line1(s.note, EN(600), 32, 22, M+28, y+24, '#8A5300', 'left', maxW-56); y += 84+44; }
+  }
+  // body text: shrink until it fits above the footer
+  const footerY=H-130, avail=footerY-40-y, many=s.parts.length>1;
+  const lay = sz => { let h=0; const blocks=s.parts.map((p,pi)=>{ const ml=p.lang==='ml', fs=ml?Math.round(sz*1.04):sz, lh=ml?1.68:1.5, font=(ml?ML(400):EN(400))(fs);
+      g.font=font; const lines=[]; String(p.text||'').split(/\n+/).forEach((para,k)=>{ if(k) lines.push(''); lines.push(...wrap(g,para,maxW,0)); });
+      const bh=(many?44:0)+lines.length*fs*lh; h+=bh+(pi?40:0); return {p,ml,fs,lh,font,lines}; }); return {h,blocks}; };
+  let L=lay(42); for(let sz=40; L.h>avail && sz>=22; sz-=2) L=lay(sz);
+  L.blocks.forEach((b,bi)=>{ if(bi) y+=40;
+    if(many){ g.font=EN(700)(24); g.fillStyle=MUTED; drawSp(g, b.ml ? 'MALAYALAM' : 'ENGLISH', M, y, 3, 'left'); y+=44; }
+    g.font=b.font; g.fillStyle=INK; b.lines.forEach(l=>{ if(l) drawSp(g,l,M,y,0,'left'); y+=b.fs*b.lh; });
+  });
+  // footer: what comes next
+  g.fillStyle=LINE; g.fillRect(M,footerY,maxW,2);
+  const nx=secs[i+1];
+  const nextTxt = !nx ? 'End of script' : nx.kind==='item' ? `Next page: Item ${nx.idx+1} — ${nx.titleEn}` : `Next page: ${nx.heading}`;
+  line1(nextTxt, EN(600), 30, 20, M, footerY+30, nx ? ACC : MUTED, 'left');
+  return c;
+}
+async function buildScriptPdf(){
+  if(!window.jspdf || !window.jspdf.jsPDF) throw new Error('The PDF maker did not load. Check the internet and try again.');
+  await ensureFonts();
+  const secs=buildSections(), doc=new window.jspdf.jsPDF({unit:'mm', format:'a4', orientation:'portrait', compress:true});
+  secs.forEach((s,i)=>{ if(i) doc.addPage(); doc.addImage(renderScriptPage(s,i,secs).toDataURL('image/jpeg',.9), 'JPEG', 0, 0, 210, 297, undefined, 'FAST'); });
+  return doc.output('blob');
+}
+async function downloadScriptPdf(btn){
+  const old=btn.innerHTML; btn.disabled=true; btn.textContent='Making the PDF…';
+  try{
+    const blob = await buildScriptPdf();
+    const slug=((state.program.date||'') + '-' + (pick('event','en')||'program')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,50) || 'program';
+    await shareFile(blob, `announcement-script-${slug}.pdf`, 'Saving the PDF did not work here. Use WhatsApp text instead.');
+  }catch(e){ toast('Could not make the PDF: ' + (e && e.message || e)); }
+  finally{ btn.disabled=false; btn.innerHTML=old; }
+}
+function autosize(t){ t.style.height='auto'; t.style.height = (t.scrollHeight+3)+'px'; }
+
+/* ================================================================
+   POSTERS
+   ================================================================ */
+const STAGES = [
+  {id:'save', label:'Save the date', when:'Post 1–2 weeks before'},
+  {id:'today', label:'Today', when:'Post on the morning of the program'}
+];
+const SIZES = { sq:{w:1080,h:1080,label:'Square post'}, story:{w:1080,h:1920,label:'Story / Status'} };
+
+const FF = {
+  cinzel: s=>`700 ${s}px Cinzel, "Cormorant Garamond", Georgia, serif`,
+  corm: w => s=>`${w} ${s}px "Cormorant Garamond", Georgia, serif`,
+  cormI: s=>`italic 600 ${s}px "Cormorant Garamond", Georgia, serif`,
+  mont: w => s=>`${w} ${s}px Montserrat, "Helvetica Neue", Arial, sans-serif`,
+  nsm: w => s=>`${w} ${s}px "Noto Serif Malayalam", "Noto Sans Malayalam", serif`,
+  manj: w => s=>`${w} ${s}px Manjari, "Noto Sans Malayalam", sans-serif`
+};
+const STY = {
+  minimal:{label:'Simple', fonts:{ en:{badge:FF.mont(600), head:FF.mont(600), name:FF.corm(700), body:FF.mont(500), ital:FF.cormI},
+                                    ml:{badge:FF.manj(700), head:FF.manj(700), name:FF.manj(700), body:FF.manj(400), ital:FF.manj(400)} }, draw:drawMinimal},
+  gold:   {label:'Temple gold', fonts:{ en:{badge:FF.mont(600), head:FF.cinzel, name:FF.corm(700), body:FF.corm(600), ital:FF.cormI},
+                                         ml:{badge:FF.nsm(600), head:FF.nsm(700), name:FF.nsm(700), body:FF.nsm(500), ital:FF.nsm(400)} }, draw:drawGold},
+  kasavu: {label:'Kasavu', fonts:{ en:{badge:FF.mont(600), head:FF.cinzel, name:FF.corm(700), body:FF.mont(500), ital:FF.cormI},
+                                    ml:{badge:FF.manj(700), head:FF.manj(700), name:FF.manj(700), body:FF.manj(400), ital:FF.manj(400)} }, draw:drawKasavu}
+};
+
+let fontsP = null;
+function ensureFonts(){
+  if(fontsP) return fontsP;
+  const ml = 'ഭരതനാട്യം നൃത്തം', specs = [
+    ['700 40px Cinzel'],['700 40px "Cormorant Garamond"'],['600 40px "Cormorant Garamond"'],['italic 600 40px "Cormorant Garamond"'],
+    ['500 40px Montserrat'],['600 40px Montserrat'],
+    ['400 40px "Noto Serif Malayalam"',ml],['500 40px "Noto Serif Malayalam"',ml],['600 40px "Noto Serif Malayalam"',ml],['700 40px "Noto Serif Malayalam"',ml],
+    ['400 40px Manjari',ml],['700 40px Manjari',ml],
+    ['400 40px Inter'],['600 40px Inter'],['700 40px Inter'],['400 40px "Noto Sans Malayalam"',ml],['600 40px "Noto Sans Malayalam"',ml]];
+  const all = (document.fonts && document.fonts.load) ? Promise.all(specs.map(([f,t])=>document.fonts.load(f,t).catch(()=>null))) : Promise.resolve();
+  fontsP = Promise.race([all, new Promise(r=>setTimeout(r,5000))]);
+  return fontsP;
+}
+
+/* ---- photos ---- */
+const photos = []; // {id, name, kind:'sample'|'mine'|'drive', thumb, img}
+function makeSamplePhoto(v){
+  const c=document.createElement('canvas'); c.width=1200; c.height=1600; const g=c.getContext('2d');
+  const pal = v===1 ? ['#3A0912','#9A3A1C','#F3B04B'] : ['#0E2730','#24615C','#F2C66E'];
+  let gr=g.createLinearGradient(0,0,0,1600); gr.addColorStop(0,pal[0]); gr.addColorStop(1,pal[1]); g.fillStyle=gr; g.fillRect(0,0,1200,1600);
+  const rg=g.createRadialGradient(600,700,20,600,700,760); rg.addColorStop(0,'rgba(255,205,120,.55)'); rg.addColorStop(1,'rgba(255,205,120,0)'); g.fillStyle=rg; g.fillRect(0,0,1200,1600);
+  g.fillStyle=pal[2];
+  const ell=(x,y,rx,ry)=>{ g.beginPath(); g.ellipse(x,y,rx,ry,0,0,Math.PI*2); g.fill(); };
+  ell(600,1430,300,48); ell(600,1390,190,34);
+  g.beginPath(); g.moveTo(560,1390); g.lineTo(575,900); g.lineTo(625,900); g.lineTo(640,1390); g.closePath(); g.fill();
+  ell(600,1250,70,26); ell(600,1100,58,22); ell(600,960,64,24);
+  g.beginPath(); g.moveTo(330,860); g.quadraticCurveTo(600,1010,870,860); g.lineTo(330,860); g.fill(); ell(600,860,272,30);
+  g.beginPath(); g.moveTo(585,830); g.lineTo(590,600); g.lineTo(610,600); g.lineTo(615,830); g.fill();
+  ell(600,590,40,40);
+  g.beginPath(); g.moveTo(600,470); g.quadraticCurveTo(640,540,600,560); g.quadraticCurveTo(560,540,600,470); g.fill();
+  [360,480,720,840].forEach(x=>{ g.fillStyle='#FFE3A3'; g.beginPath(); g.moveTo(x,740); g.quadraticCurveTo(x+34,800,x,838); g.quadraticCurveTo(x-34,800,x,740); g.fill(); });
+  g.fillStyle='rgba(255,255,255,.55)'; g.font='600 40px Montserrat, Arial, sans-serif'; g.textAlign='center'; g.fillText('SAMPLE PHOTO', 600, 1540);
+  return c;
+}
+function initSamplePhotos(){
+  if(LIVE) return;
+  [1,2].forEach(v=>{ const c=makeSamplePhoto(v); const t=document.createElement('canvas'); t.width=150; t.height=200; t.getContext('2d').drawImage(c,0,0,150,200);
+    photos.push({id:'sample-'+v, name:'Sample '+v, kind:'sample', img:c, thumb:t.toDataURL('image/jpeg',.8)}); });
+}
+const IDB = {
+  db:null,
+  open(){ if(this.db) return Promise.resolve(this.db); return new Promise((res,rej)=>{ try{ const r=indexedDB.open('program-kit',1); r.onupgradeneeded=()=>r.result.createObjectStore('photos',{keyPath:'id'}); r.onsuccess=()=>{ this.db=r.result; res(r.result); }; r.onerror=()=>rej(r.error); }catch(e){ rej(e); } }); },
+  async all(){ try{ const db=await this.open(); return await new Promise((res,rej)=>{ const q=db.transaction('photos').objectStore('photos').getAll(); q.onsuccess=()=>res(q.result||[]); q.onerror=()=>rej(q.error); }); }catch(e){ return []; } },
+  async put(rec){ try{ const db=await this.open(); await new Promise((res,rej)=>{ const t=db.transaction('photos','readwrite'); t.objectStore('photos').put(rec); t.oncomplete=res; t.onerror=()=>rej(t.error); }); }catch(e){} },
+  async del(id){ try{ const db=await this.open(); await new Promise((res,rej)=>{ const t=db.transaction('photos','readwrite'); t.objectStore('photos').delete(id); t.oncomplete=res; t.onerror=()=>rej(t.error); }); }catch(e){} }
+};
+async function imgFromBlob(blob){ const url=URL.createObjectURL(blob); const im=new Image(); im.src=url; try{ await im.decode(); }catch(e){ await new Promise(r=>{ im.onload=r; im.onerror=r; }); } return {im, url}; }
+async function loadMyPhotos(){
+  const recs = await IDB.all();
+  for(const r of recs.sort((a,b)=>a.t-b.t)){ if(photos.some(p=>p.id===r.id)) continue; const {im,url}=await imgFromBlob(r.blob); photos.unshift({id:r.id, name:r.name, kind:'mine', img:im, thumb:url}); }
+}
+async function addPhotoFiles(files){
+  let firstId=null, sent=0, failed=0;
+  for(const file of files){
+    try{
+      const {im,url}=await imgFromBlob(file);
+      const max=2000, w=im.naturalWidth, h=im.naturalHeight; if(!w||!h){ URL.revokeObjectURL(url); continue; }
+      const sc=Math.min(1, max/Math.max(w,h)); const c=document.createElement('canvas'); c.width=Math.round(w*sc); c.height=Math.round(h*sc);
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height); URL.revokeObjectURL(url);
+      const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.9));
+      const rec={id:'mine-'+Date.now()+'-'+Math.random().toString(36).slice(2,6), name:file.name||'Photo', blob, t:Date.now()};
+      const o=await imgFromBlob(blob);
+      if(LIVE){
+        toast('Saving the photo to Google Drive…');
+        const d = await uploadPhoto(rec);
+        if(d){ photos.unshift({id:'drive-'+d.id, driveId:d.id, name:d.name, kind:'drive', img:o.im, thumb:o.url}); firstId = firstId || ('drive-'+d.id); sent++; continue; }
+        failed++;
+      }
+      await IDB.put(rec);
+      photos.unshift({id:rec.id, name:rec.name, kind:'mine', img:o.im, thumb:o.url}); firstId = firstId || rec.id;
+    }catch(e){ toast('That photo could not be opened. Try another one.'); }
+  }
+  if(firstId){ state.photoId=firstId; save(); rerenderPanel();
+    toast(failed ? 'Photo kept on this phone. It will go to Google Drive next time the internet works.' : sent ? 'Photo saved to Google Drive' : 'Photo added'); }
+}
+/* send one photo to Drive ("Program Kit / Photos from phone"); returns {id,name} or null */
+async function uploadPhoto(rec){
+  try{ const j = await api('photo', null, {name: rec.name, mime:'image/jpeg', data: await blobToB64(rec.blob)}); return {id:j.id, name:j.name||rec.name}; }
+  catch(e){ return null; }
+}
+/* photos kept on the phone because Drive could not be reached earlier: send them now */
+async function syncMyPhotos(){
+  if(!LIVE) return;
+  let moved = 0;
+  for(const r of await IDB.all()){
+    const d = await uploadPhoto(r); if(!d) continue;
+    await IDB.del(r.id);
+    const p = photos.find(x=>x.id===r.id);
+    if(p){ Object.assign(p, {id:'drive-'+d.id, driveId:d.id, name:d.name, kind:'drive'}); if(state.photoId===r.id){ state.photoId=p.id; save(); } }
+    moved++;
+  }
+  if(moved && state.step>=3) render();
+}
+async function ensurePhotoImg(p){
+  if(!p || p.img || p.kind!=='drive') return;
+  if(p.loading) return p.loading;
+  p.loading = (async()=>{ const j = await api('photo', {id:p.driveId});
+    const bin = atob(j.data), arr = new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+    const {im,url} = await imgFromBlob(new Blob([arr],{type:j.mime||'image/jpeg'})); p.img=im; p.thumb=url; })().catch(()=>{ p.loading=null; });
+  return p.loading;
+}
+function activePhoto(){ return photos.find(p=>p.id===state.photoId) || photos[0] || null; }
+function getAdj(pid, size){ return state.adjust[(pid||'none')+'|'+size] || {fx:.5, fy:.3, z:1}; }
+function setAdj(pid, size, a){ state.adjust[(pid||'none')+'|'+size] = a; }
+
+/* ---- drawing primitives ---- */
+function measureSp(ctx, t, sp){ return ctx.measureText(t).width + (sp ? sp*(Array.from(t).length-1) : 0); }
+function drawSp(ctx, t, x, y, sp, align){
+  if(!sp){ ctx.textAlign = align==='center' ? 'center' : 'left'; ctx.fillText(t, x, y); return; }
+  const chars = Array.from(t), w = measureSp(ctx,t,sp); let cx = align==='center' ? x - w/2 : x; ctx.textAlign='left';
+  for(const ch of chars){ ctx.fillText(ch, cx, y); cx += ctx.measureText(ch).width + sp; }
+}
+function wrap(ctx, text, maxW, sp){
+  const words = String(text).split(/\s+/).filter(Boolean), lines=[]; let cur='';
+  for(const w of words){ const t = cur ? cur+' '+w : w; if(measureSp(ctx,t,sp) <= maxW || !cur) cur=t; else { lines.push(cur); cur=w; } }
+  if(cur) lines.push(cur); return lines;
+}
+function fitText(ctx, text, font, size, min, maxW, maxLines, sp){
+  for(let s=size; s>=min; s-=2){ ctx.font=font(s); const L=wrap(ctx,text,maxW,sp); if(L.length<=maxLines && L.every(l=>measureSp(ctx,l,sp)<=maxW)) return {lines:L, s}; }
+  ctx.font=font(min); return {lines: wrap(ctx,text,maxW,sp).slice(0,maxLines), s:min};
+}
+function rr(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function archPath(ctx,x,y,w,h){ const r=w/2; ctx.beginPath(); ctx.moveTo(x,y+h); ctx.lineTo(x,y+r); ctx.arc(x+r,y+r,r,Math.PI,0); ctx.lineTo(x+w,y+h); ctx.closePath(); }
+function diamond(ctx,x,y,r,fill){ ctx.beginPath(); ctx.moveTo(x,y-r); ctx.lineTo(x+r,y); ctx.lineTo(x,y+r); ctx.lineTo(x-r,y); ctx.closePath(); ctx.fillStyle=fill; ctx.fill(); }
+function photoIn(ctx, img, adj, A, shape){
+  ctx.save();
+  if(shape==='arch') archPath(ctx,A.x,A.y,A.w,A.h); else { ctx.beginPath(); ctx.rect(A.x,A.y,A.w,A.h); }
+  ctx.clip();
+  let info = {ox:0, oy:0};
+  if(img){
+    const iw=img.naturalWidth||img.width, ih=img.naturalHeight||img.height;
+    const sc=Math.max(A.w/iw, A.h/ih) * (adj.z||1), dw=iw*sc, dh=ih*sc, ox=dw-A.w, oy=dh-A.h;
+    ctx.drawImage(img, A.x - ox*adj.fx, A.y - oy*adj.fy, dw, dh); info={ox, oy};
+  } else { const g=ctx.createLinearGradient(A.x,A.y,A.x,A.y+A.h); g.addColorStop(0,'#5a4a44'); g.addColorStop(1,'#2a201d'); ctx.fillStyle=g; ctx.fillRect(A.x,A.y,A.w,A.h); }
+  ctx.restore(); return info;
+}
+function badge(ctx, b, x, y, align){
+  ctx.font=b.font(b.s); const sp=b.spacing||0, tw=measureSp(ctx,b.t,sp), px=b.s*.95, h=b.s*2.05, w=tw+px*2;
+  const bx = align==='center' ? x-w/2 : x;
+  rr(ctx,bx,y,w,h,h/2);
+  if(b.bg){ ctx.fillStyle=b.bg; ctx.fill(); }
+  if(b.stroke){ ctx.strokeStyle=b.stroke; ctx.lineWidth=2.5; ctx.stroke(); }
+  ctx.fillStyle=b.fg; const prev=ctx.textBaseline; ctx.textBaseline='middle';
+  drawSp(ctx, b.t, align==='center' ? x : bx+px, y+h/2+ (b.ml?2:1), sp, align==='center'?'center':'left'); ctx.textBaseline=prev;
+}
+function measureBlock(ctx, b, maxW, k){
+  const gap=(b.gap||0)*k;
+  if(b.type==='divider') return Object.assign({}, b, {gap, h:(b.h||24)*k});
+  const size=Math.round(b.size*k), t = b.upper ? b.text.toUpperCase() : b.text;
+  if(b.type==='badge'){ return Object.assign({}, b, {t, s:size, gap, h:size*2.05}); }
+  const f = fitText(ctx, t, b.font, size, Math.min(b.min||size, size), maxW, b.lines||2, b.spacing||0);
+  return Object.assign({}, b, {lines:f.lines, s:f.s, gap, h: f.lines.length * f.s * (b.lh||1.15)});
+}
+function flow(ctx, blocks, R, opt){
+  blocks = blocks.filter(b => b && (b.type==='divider' || (b.text && String(b.text).trim())));
+  let k=1, laid, total;
+  for(;;){ laid = blocks.map(b=>measureBlock(ctx,b,R.w,k)); total = laid.reduce((s,l,i)=>s+(i?l.gap:0)+l.h, 0); if(total<=R.h || k<=0.55) break; k-=0.05; }
+  let y = opt.valign==='bottom' ? R.y+R.h-total : opt.valign==='top' ? R.y : R.y+(R.h-total)/2;
+  const cx = opt.align==='center' ? R.x+R.w/2 : R.x;
+  laid.forEach((l,i)=>{
+    if(i) y += l.gap;
+    if(l.type==='badge'){ badge(ctx, l, cx, y, opt.align); }
+    else if(l.type==='divider'){
+      ctx.strokeStyle=l.color; ctx.lineWidth=2; const my=y+l.h/2;
+      if(l.style==='line'){ ctx.fillStyle=l.color; ctx.fillRect(opt.align==='center'?cx-45:cx, my-1.5, 90, 3); }
+      else { const half=110*k; ctx.beginPath(); ctx.moveTo(cx-half,my); ctx.lineTo(cx-16,my); ctx.moveTo(cx+16,my); ctx.lineTo(cx+half,my); ctx.stroke(); diamond(ctx,cx,my,8*k+2,l.color); diamond(ctx,cx-half,my,3.5,l.color); diamond(ctx,cx+half,my,3.5,l.color); }
+    } else {
+      ctx.font=l.font(l.s); ctx.fillStyle=l.color;
+      l.lines.forEach((ln,j)=> drawSp(ctx, ln, cx, y + j*l.s*(l.lh||1.15), l.spacing||0, opt.align));
+    }
+    y += l.h;
+  });
+}
+function posterText(stage, lang){
+  const P=state.program, co=pick('co',lang), org=pick('org',lang);
+  return { badge: tx('badge_'+stage, lang), heading: tx('poster_heading', lang), name: tx('dancer_name', lang),
+    co: co ? `${tx('co_prefix',lang)} ${co}` : '', date: fmtDate(P.date, lang), time: fmtTime(P.time, lang),
+    event: pick('event',lang), venue: pick('venue',lang), org: org ? `${tx('organiser_prefix',lang)} ${org}` : '' };
+}
+function blocksFor(c, F, col, lang, o){
+  const ml = lang==='ml', en=!ml, lh = ml ? 1.45 : 1.14, body=o.body||36;
+  return [
+    !o.noBadge && {type:'badge', text:c.badge, font:F.badge, size:o.badge||24, fg:col.badgeFg, bg:col.badgeBg, stroke:col.badgeStroke, upper:en, spacing:en?5:0, ml},
+    {type:'text', text:c.heading, font:F.head, size:o.head||52, min:24, lines:2, color:col.head, upper:o.headUpper&&en, spacing:(o.headSpacing&&en)?o.headSpacing:0, lh, gap:o.noBadge?0:30},
+    {type:'divider', color:col.rule, h:26, gap:16, style:o.divider||'diamond'},
+    {type:'text', text:c.name, font:F.name, size:o.name||74, min:36, lines:2, color:col.name, lh: ml?1.38:1.02, gap:16},
+    c.co && {type:'text', text:c.co, font:F.ital, size:o.co||Math.round(body*.9), min:20, lines:2, color:col.muted, lh, gap:8},
+    {type:'text', text:c.date, font:F.body, size:body, min:22, lines:2, color:col.text, lh, gap:34},
+    c.time && {type:'text', text:c.time, font:F.body, size:body, min:22, lines:1, color:col.accent, lh, gap:4},
+    c.event && {type:'text', text:c.event, font:F.body, size:body-2, min:20, lines:2, color:col.text, lh, gap:26},
+    c.venue && {type:'text', text:c.venue, font:F.body, size:body-5, min:18, lines:3, color:col.muted, lh, gap:6},
+    c.org && {type:'text', text:c.org, font:F.body, size:body-10, min:16, lines:2, color:col.muted, lh, gap:18}
+  ].filter(Boolean);
+}
+
+/* ---- style 1: Temple gold ---- */
+function drawGold(ctx,W,H,c,lang,img,adj){
+  const sq=W===H, F=STY.gold.fonts[lang], gold='#DDB25A';
+  const bg=ctx.createRadialGradient(W*.5,H*.4,40,W*.5,H*.5,Math.hypot(W,H)*.62); bg.addColorStop(0,'#741B2B'); bg.addColorStop(1,'#26070D');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(221,178,90,.07)'; for(let y=70;y<H-60;y+=40) for(let x=70+((y/40)%2)*20;x<W-60;x+=40){ ctx.beginPath(); ctx.arc(x,y,1.8,0,Math.PI*2); ctx.fill(); }
+  ctx.strokeStyle=gold; ctx.lineWidth=5; ctx.strokeRect(30,30,W-60,H-60); ctx.lineWidth=1.6; ctx.strokeRect(46,46,W-92,H-92);
+  [[46,46],[W-46,46],[46,H-46],[W-46,H-46]].forEach(([x,y])=>diamond(ctx,x,y,13,gold));
+  const A = sq ? {x:88,y:96,w:430,h:888} : {x:170,y:214,w:740,h:1010};
+  const info = photoIn(ctx,img,adj,A,'arch');
+  ctx.strokeStyle=gold; ctx.lineWidth=4; archPath(ctx,A.x,A.y,A.w,A.h); ctx.stroke();
+  ctx.lineWidth=1.5; archPath(ctx,A.x-14,A.y-14,A.w+28,A.h+28); ctx.stroke();
+  const col={badgeBg:gold, badgeFg:'#3A0B14', head:'#EAC573', rule:gold, name:'#FFF4E4', text:'#F6E7D4', muted:'#D9C2AC', accent:'#EAC573'};
+  if(sq) flow(ctx, blocksFor(c,F,col,lang,{head:44,name:64,body:32,badge:21}), {x:560,y:100,w:452,h:880}, {align:'center'});
+  else {
+    badge(ctx, measureBlock(ctx,{type:'badge',text:c.badge,font:F.badge,size:26,fg:col.badgeFg,bg:col.badgeBg,upper:lang==='en',spacing:lang==='en'?6:0,ml:lang==='ml'},W,1), W/2, 96, 'center');
+    flow(ctx, blocksFor(c,F,col,lang,{noBadge:true,head:56,name:86,body:38}), {x:110,y:1272,w:860,h:560}, {align:'center'});
+  }
+  return info;
+}
+/* ---- style 2: Kasavu (Kerala cream and gold border) ---- */
+function kasavuBand(ctx,x,y,w,h,vertical){
+  const g = vertical ? ctx.createLinearGradient(x,0,x+w,0) : ctx.createLinearGradient(0,y,0,y+h);
+  g.addColorStop(0,'#B5852A'); g.addColorStop(.3,'#F2D483'); g.addColorStop(.55,'#C6952F'); g.addColorStop(.8,'#F5DD92'); g.addColorStop(1,'#B5852A');
+  ctx.fillStyle=g; ctx.fillRect(x,y,w,h);
+}
+function drawKasavu(ctx,W,H,c,lang,img,adj){
+  const sq=W===H, F=STY.kasavu.fonts[lang];
+  ctx.fillStyle='#F5ECD8'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(120,90,40,.035)'; for(let y=0;y<H;y+=5) ctx.fillRect(0,y,W,1.2);
+  const ring=(i,w,fill)=>{ ctx.beginPath(); ctx.rect(i,i,W-2*i,H-2*i); ctx.rect(i+w,i+w,W-2*(i+w),H-2*(i+w)); if(typeof fill==='string'){ ctx.fillStyle=fill; ctx.fill('evenodd'); } else { const g=ctx.createLinearGradient(0,0,W,H); g.addColorStop(0,'#B5852A'); g.addColorStop(.25,'#F2D483'); g.addColorStop(.5,'#C6952F'); g.addColorStop(.75,'#F5DD92'); g.addColorStop(1,'#B5852A'); ctx.fillStyle=g; ctx.fill('evenodd'); } };
+  ring(0,24,null); ring(24,6,'#7A1424'); ring(36,4,null);
+  const A = sq ? {x:62,y:62,w:470,h:956} : {x:62,y:62,w:956,h:1100};
+  const info = photoIn(ctx,img,adj,A,'rect');
+  if(sq){ kasavuBand(ctx,A.x+A.w,A.y,14,A.h,true); ctx.fillStyle='#7A1424'; ctx.fillRect(A.x+A.w+14,A.y,4,A.h); }
+  else { kasavuBand(ctx,A.x,A.y+A.h,A.w,16,false); ctx.fillStyle='#7A1424'; ctx.fillRect(A.x,A.y+A.h+16,A.w,5); }
+  const col={badgeBg:'#7A1424', badgeFg:'#FBEFD8', head:'#7A1424', rule:'#B5852A', name:'#2B1A12', text:'#3A291F', muted:'#6A5444', accent:'#8E6210'};
+  if(sq) flow(ctx, blocksFor(c,F,col,lang,{head:40,name:62,body:29,badge:20}), {x:574,y:80,w:448,h:920}, {align:'center'});
+  else flow(ctx, blocksFor(c,F,col,lang,{head:52,name:84,body:37,badge:25}), {x:96,y:1214,w:888,h:640}, {align:'center'});
+  return info;
+}
+/* ---- style 3: Simple (full photo) ---- */
+function drawMinimal(ctx,W,H,c,lang,img,adj){
+  const sq=W===H, F=STY.minimal.fonts[lang];
+  const info = photoIn(ctx,img,adj,{x:0,y:0,w:W,h:H},'rect');
+  let g=ctx.createLinearGradient(0,H*(sq?.30:.40),0,H); g.addColorStop(0,'rgba(14,8,10,0)'); g.addColorStop(.5,'rgba(14,8,10,.74)'); g.addColorStop(1,'rgba(14,8,10,.94)'); ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  g=ctx.createLinearGradient(0,0,0,H*.2); g.addColorStop(0,'rgba(14,8,10,.55)'); g.addColorStop(1,'rgba(14,8,10,0)'); ctx.fillStyle=g; ctx.fillRect(0,0,W,H*.2);
+  const col={badgeStroke:'rgba(255,255,255,.92)', badgeFg:'#FFFFFF', head:'#F2C46B', rule:'#F2C46B', name:'#FFFFFF', text:'rgba(255,255,255,.93)', muted:'rgba(255,255,255,.76)', accent:'#F2C46B'};
+  badge(ctx, measureBlock(ctx,{type:'badge',text:c.badge,font:F.badge,size:sq?24:28,fg:col.badgeFg,stroke:col.badgeStroke,upper:lang==='en',spacing:lang==='en'?5:0,ml:lang==='ml'},W,1), 70, sq?66:110, 'left');
+  ctx.save(); ctx.shadowColor='rgba(0,0,0,.4)'; ctx.shadowBlur=12;
+  const R = sq ? {x:70,y:H*.38,w:W-140,h:H*.62-66} : {x:80,y:H*.48,w:W-160,h:H*.52-120};
+  flow(ctx, blocksFor(c,F,col,lang,{noBadge:true, head:sq?26:30, headUpper:true, headSpacing:6, name:sq?74:96, body:sq?30:37, divider:'line'}), R, {align:'left', valign:'bottom'});
+  ctx.restore();
+  return info;
+}
+
+function renderPoster(canvas, stage, size, scale){
+  const S=SIZES[size], W=S.w, H=S.h; canvas.width=Math.round(W*scale); canvas.height=Math.round(H*scale);
+  const ctx=canvas.getContext('2d'); ctx.setTransform(scale,0,0,scale,0,0); ctx.textBaseline='top';
+  const p=activePhoto();
+  return STY[state.pStyle].draw(ctx, W, H, posterText(stage, state.pLang), state.pLang, p && p.img, getAdj(p && p.id, size));
+}
+
+function postersPanel(){
+  const p = activePhoto(), hasMine = photos.some(x=>x.kind==='mine' || x.kind==='drive');
+  return `
+  <div class="ctl"><span class="lbl">Language</span>
+    <div class="seg" role="group" aria-label="Poster language">
+      <button data-act="plang" data-v="en" aria-pressed="${state.pLang==='en'}">English</button>
+      <button data-act="plang" data-v="ml" aria-pressed="${state.pLang==='ml'}" class="ml">മലയാളം</button>
+    </div></div>
+  <div class="ctl"><span class="lbl">Style</span>
+    <div class="seg" role="group" aria-label="Poster style">
+      ${Object.entries(STY).map(([k,s])=>`<button data-act="pstyle" data-v="${k}" aria-pressed="${state.pStyle===k}">${s.label}</button>`).join('')}
+    </div></div>
+  <div class="ctl"><span class="lbl">Photo</span>
+    <div class="photos">
+      <button class="ph add" data-act="addphoto">${ICON.cam}<span>Add photo</span></button>
+      ${photos.map(x=>`<button class="ph" data-act="photo" data-id="${esc(x.id)}" aria-pressed="${p && p.id===x.id}" aria-label="${esc(x.name)}">${x.thumb ? `<img src="${esc(x.thumb)}" alt="">` : ''}${x.kind==='mine' ? `<span class="x" data-act="delphoto" data-id="${esc(x.id)}" aria-label="Remove photo">×</span>` : ''}</button>`).join('')}
+    </div>
+    ${hasMine ? '' : `<p class="hint">These are placeholder pictures. Tap <b>Add photo</b> to try one of her real photos from the phone.</p>`}
+  </div>
+  ${STAGES.map(s=>`
+    <div class="stage">
+      <div class="stage-h"><b>${s.label}</b><span>${s.when}</span></div>
+      <div class="thumbs">
+        ${thumbHTML(s,'sq')}${thumbHTML(s,'story')}
+      </div>
+    </div>`).join('')}
+  <p class="hint">Tap a poster to see it large, move the photo, and save or share it.</p>`;
+}
+/* one poster thumbnail: tap the picture to preview; tap the round icon to save or share it straight away */
+function thumbHTML(s, size){
+  const lbl = size==='sq' ? 'Post' : 'Story';
+  return `<div class="tw"><button class="thumb" data-act="open" data-stage="${s.id}" data-size="${size}" aria-label="Preview ${s.label}, ${size==='sq'?'square post':'story'}"><canvas data-stage="${s.id}" data-size="${size}"></canvas><span class="cap">${lbl}</span></button><button class="dl" data-act="dlposter" data-stage="${s.id}" data-size="${size}" aria-label="Save or share ${s.label} ${lbl.toLowerCase()}" title="Save or share">${ICON.share}</button></div>`;
+}
+function posterDownloadName(stage, size){
+  const slug = (pick('event','en')||'program').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40) || 'program';
+  return `${slug}-${stage}-${size==='sq'?'post':'story'}-${state.pLang==='ml'?'malayalam':'english'}.jpg`;
+}
+function dataUrlToBlob(u){ const [h,b]=u.split(','), bin=atob(b), a=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) a[i]=bin.charCodeAt(i); return new Blob([a],{type:(h.match(/:(.*?);/)||[])[1]||'image/jpeg'}); }
+/* made without waiting, so the iPhone share sheet still counts it as part of the tap */
+function downloadPoster(stage, size, btn){
+  const cv = document.createElement('canvas'); renderPoster(cv, stage, size, 1);
+  const blob = dataUrlToBlob(cv.toDataURL('image/jpeg', .92));
+  if(btn) btn.disabled = true;
+  shareFile(blob, posterDownloadName(stage, size), 'Open the poster and press and hold it, then tap Save to Photos.').finally(()=>{ if(btn) btn.disabled = false; });
+}
+let drawToken = 0;
+async function drawThumbs(){
+  const my = ++drawToken; await ensureFonts(); const p=activePhoto(); if(p) await ensurePhotoImg(p);
+  if(my!==drawToken) return;
+  document.querySelectorAll('.thumb canvas').forEach(cv=>{ const sz=cv.dataset.size; renderPoster(cv, cv.dataset.stage, sz, sz==='sq' ? .42 : .3); });
+}
+
+/* ---- viewer ---- */
+const V = {stage:null, size:null, adjusting:false, info:null, drag:null};
+async function openViewer(stage, size){
+  V.stage=stage; V.size=size; V.adjusting=false;
+  $('#vTitle').textContent = `${STAGES.find(s=>s.id===stage).label} · ${SIZES[size].label}`;
+  $('#viewer').hidden=false; document.body.style.overflow='hidden';
+  await ensureFonts(); drawViewer(true); vTools();
+}
+function drawViewer(updateImg){
+  const cv=$('#vCanvas'); V.info = renderPoster(cv, V.stage, V.size, 1);
+  if(updateImg){ $('#vImg').src = cv.toDataURL('image/jpeg', .9); }
+  $('#vImg').hidden = V.adjusting; cv.hidden = !V.adjusting; $('#vMove').hidden = V.adjusting;
+}
+function vTools(){
+  const a=getAdj(activePhoto() && activePhoto().id, V.size);
+  $('#vTools').innerHTML = V.adjusting ? `
+    <p class="hint"><b>Drag the poster</b> with your finger to move the photo. Use the slider to make the photo bigger.</p>
+    <div class="zoom"><span class="muted">Smaller</span><input id="vZoom" type="range" min="1" max="2.5" step="0.05" value="${a.z||1}" aria-label="Photo size"><span class="muted">Bigger</span></div>
+    <div class="btn-row"><button class="btn secondary" data-act="vreset">Reset</button><button class="btn" data-act="vdoneadj">Done moving</button></div>`
+  : '';
+}
+function closeViewer(){ $('#viewer').hidden=true; document.body.style.overflow=''; save(); if(state.step===3 || state.step===4) drawThumbs(); }
+async function savePoster(){
+  const cv=$('#vCanvas'); drawViewer(false);
+  const blob = await new Promise(r=>cv.toBlob(r,'image/jpeg',.92));
+  const slug = (pick('event','en')||'program').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40) || 'program';
+  const name = `${slug}-${V.stage}-${V.size==='sq'?'post':'story'}-${state.pLang==='ml'?'malayalam':'english'}.jpg`;
+  await shareFile(blob, name, 'Press and hold the poster, then tap Save to Photos.');
+}
+function bindViewerDrag(){
+  const cv=$('#vCanvas');
+  cv.addEventListener('pointerdown', e=>{ if(!V.adjusting) return; cv.setPointerCapture(e.pointerId); V.drag={x:e.clientX, y:e.clientY}; e.preventDefault(); });
+  cv.addEventListener('pointermove', e=>{
+    if(!V.drag) return; const r=cv.getBoundingClientRect(), k=cv.width/r.width;
+    const dx=(e.clientX-V.drag.x)*k, dy=(e.clientY-V.drag.y)*k; V.drag={x:e.clientX, y:e.clientY};
+    const p=activePhoto(), a=Object.assign({}, getAdj(p&&p.id, V.size));
+    if(V.info && V.info.ox>0) a.fx = clamp(a.fx - dx/V.info.ox, 0, 1);
+    if(V.info && V.info.oy>0) a.fy = clamp(a.fy - dy/V.info.oy, 0, 1);
+    setAdj(p&&p.id, V.size, a);
+    if(!V.raf) V.raf = requestAnimationFrame(()=>{ V.raf=null; drawViewer(false); });
+  });
+  const end=()=>{ V.drag=null; };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  document.addEventListener('input', e=>{ if(e.target.id==='vZoom'){ const p=activePhoto(), a=Object.assign({}, getAdj(p&&p.id, V.size)); a.z=+e.target.value; setAdj(p&&p.id, V.size, a); drawViewer(false); } });
+}
+
+/* ================================================================
+   EVENTS
+   ================================================================ */
+function disarm(){ if(state.clearArm){ state.clearArm=false; } }
+document.addEventListener('click', e=>{
+  const b = e.target.closest('[data-act]'); if(!b) return;
+  const act=b.dataset.act, i=+b.dataset.i;
+  if(act!=='clear' && act!=='newprog') disarm();
+  switch(act){
+    case 'go': { const s=+b.dataset.step; if(s>1 && !validItems().length){ state.step=1; toast('Add at least one item first'); } else state.step=s; save(); render(); window.scrollTo(0,0); break; }
+    case 'add': { const r=rep(b.dataset.id); state.items.push({id:b.dataset.id, len:'short'}); state.q=''; save(); flipRender(b.dataset.id); toast(`Added as item ${validItems().length}: ${r ? r.itemEn : ''}`); break; }
+    case 'clearq': state.q=''; { const q=$('#q'); if(q){ q.value=''; q.focus(); } } applySearch(); break;
+    case 'remove': { state.items = validItems(); const gone=state.items[i]; if(!gone) break; const r=rep(gone.id); const card=b.closest('.pi');
+      const finish=()=>{ state.items.splice(state.items.indexOf(gone),1); save(); flipRender(null); toast(`Removed ${r ? r.itemEn : 'item'}`); };
+      if(card && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)){ card.classList.add('leaving'); setTimeout(finish, 240); } else finish();
+      break; }
+    case 'up': case 'down': { state.items = validItems(); const j = act==='up' ? i-1 : i+1; if(j<0||j>=state.items.length) break; const mv=state.items[i];
+      [state.items[i], state.items[j]] = [state.items[j], state.items[i]]; save(); flipRender(mv.id);
+      const r=rep(mv.id); toast(`${r ? r.itemEn : 'Item'} is now item ${j+1}`);
+      const btn = document.querySelector(`[data-act="${act}"][data-i="${j}"]`); if(btn && !btn.disabled) btn.focus({preventScroll:true}); break; }
+    case 'clear': if(!state.clearArm){ state.clearArm=true; render(); } else { state.clearArm=false; state.program=blankProgram(); state.folder=null; state.pdf=null; save(); render(); toast('Details cleared'); } break;
+    case 'newprog': if(!state.clearArm){ state.clearArm=true; render(); } else { state.clearArm=false; state.program=blankProgram(); state.items=[]; state.folder=null; state.pdf=null; state.edits={}; state.step=1; state.tab='music'; save(); render(); window.scrollTo(0,0); toast('Ready for a new program'); } break;
+    case 'saveall': saveAll(); break;
+    case 'copy-folder': copyText(state.folder ? state.folder.url : ''); break;
+    case 'wa-folder': break;
+    case 'slang': state.scriptLang=b.dataset.v; save(); render(); break;
+    case 'biolen': state.bioLen=b.dataset.v; delete state.edits['intro|en']; delete state.edits['intro|ml']; save(); refreshScript(); break;
+    case 'len': { const it=validItems()[i]; if(it){ it.len=b.dataset.v; state.items=validItems(); delete state.edits['item-'+it.id+'|en']; delete state.edits['item-'+it.id+'|ml']; state.editsSig=sig(); save(); refreshScript(); } break; }
+    case 'page': openPage(i); break;
+    case 'pclose': closePage(); break;
+    case 'pprev': PV.i--; drawPage(true); break;
+    case 'pnext': PV.i++; drawPage(true); break;
+    case 'pundo': { const s=buildSections()[PV.i]; if(s){ delete state.edits[s.id+'|en']; delete state.edits[s.id+'|ml']; save(); drawPage(true); toast('Back to the original words'); } break; }
+    case 'wa-script': b.href = waHref(scriptText()); break;
+    case 'pdf': downloadScriptPdf(b); break;
+    case 'plang': state.pLang=b.dataset.v; save(); rerenderPanel(); break;
+    case 'pstyle': state.pStyle=b.dataset.v; save(); rerenderPanel(); break;
+    case 'photo': if(e.target.closest('.x')) break; state.photoId=b.dataset.id; save(); rerenderPanel(); break;
+    case 'delphoto': { e.stopPropagation(); const id=b.dataset.id; const idx=photos.findIndex(p=>p.id===id); if(idx>=0) photos.splice(idx,1); IDB.del(id); if(state.photoId===id) state.photoId=null; save(); rerenderPanel(); toast('Photo removed from this phone'); break; }
+    case 'addphoto': $('#fileIn').click(); break;
+    case 'open': openViewer(b.dataset.stage, b.dataset.size); break;
+    case 'vclose': closeViewer(); break;
+    case 'dlposter': downloadPoster(b.dataset.stage, b.dataset.size, b); break;
+    case 'vadjust': V.adjusting=true; drawViewer(false); vTools(); break;
+    case 'vdoneadj': V.adjusting=false; drawViewer(true); vTools(); save(); break;
+    case 'vreset': { const p=activePhoto(); delete state.adjust[(p?p.id:'none')+'|'+V.size]; drawViewer(false); vTools(); break; }
+    case 'retry': boot(); break;
+  }
+});
+document.addEventListener('input', e=>{
+  if(e.target.id==='q'){ state.q=e.target.value; applySearch(); return; }
+  const f=e.target.dataset && e.target.dataset.field;
+  if(f){ state.program[f]=e.target.value; state.folder=null; state.pdf=null; save(); return; }
+  const k=e.target.dataset && e.target.dataset.edit;
+  if(k){ state.edits[k]=e.target.value; autosize(e.target); save();
+    if(pageOpen()){ clearTimeout(PV.t); PV.t=setTimeout(()=>drawPage(false), 350); } }
+});
+$('#fileIn').addEventListener('change', e=>{ const fs=[...e.target.files]; e.target.value=''; if(fs.length) addPhotoFiles(fs); });
+document.addEventListener('keydown', e=>{ if(e.key!=='Escape') return; if(!$('#viewer').hidden) closeViewer(); else if(pageOpen()) closePage(); });
+window.addEventListener('resize', ()=>document.documentElement.style.setProperty('--hdr', $('#top').offsetHeight + 'px'));
+
+/* ================================================================
+   START
+   ================================================================ */
+let loadError = '';
+async function boot(){
+  loadError=''; render();
+  if(LIVE){
+    if(!KEY){ loadError='This link is missing its access code. Ask your helper for the full link and add it to the Home Screen again.'; render(); return; }
+    try{
+      const j = await api('data');
+      DATA = {repertoire:j.repertoire||[], text:j.text||{}, photos:j.photos||[]};
+      photos.length = 0;
+      (DATA.photos||[]).forEach(ph=>photos.push({id:'drive-'+ph.id, driveId:ph.id, name:ph.name, kind:'drive', img:null, thumb:null}));
+      await loadMyPhotos();
+      render();
+      photos.filter(p=>p.kind==='drive').forEach(p=>ensurePhotoImg(p).then(()=>{ if(state.step>=3) render(); }));
+      syncMyPhotos();
+    }catch(e){ loadError = 'Check the internet connection and try again. (' + e.message + ')'; render(); }
+  } else {
+    if(!photos.length) initSamplePhotos();
+    await loadMyPhotos();
+    render();
+  }
+}
+bindViewerDrag();
+boot();
+})();
+</script>
+
+</body>
+</html>
